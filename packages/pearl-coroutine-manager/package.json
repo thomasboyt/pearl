@@ -1,5 +1,5 @@
 {
-  "name": "@pearl/coroutine-manager",
+  "name": "@tboyt/coroutine-manager",
   "version": "0.0.1",
   "description": "Coroutine manager for Pearl",
   "main": "dist/coroutine.js",

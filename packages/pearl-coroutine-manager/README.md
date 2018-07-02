@@ -11,7 +11,7 @@ In addition, coroutines can be *canceled* with the `cancel()` method. While this
 ## Example usage
 
 ```ts
-import CoroutineManager from '@pearl/coroutine-manager';
+import CoroutineManager from '@tboyt/coroutine-manager';
 
 const manager = new CoroutineManager();
 
