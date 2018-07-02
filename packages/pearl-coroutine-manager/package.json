@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Coroutine manager for Pearl",
   "main": "dist/coroutine.js",
-  "typings": "dist/index.d.ts",
+  "typings": "dist/coroutine.d.ts",
   "files": [
     "dist"
   ],
