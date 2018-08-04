@@ -1,6 +1,6 @@
 {
   "name": "pearl-networking",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@types/webrtc": "^0.0.23",
-    "pearl": "0.0.6"
+    "pearl": "0.0.7"
   },
   "peerDependencies": {
     "pearl": "*"
