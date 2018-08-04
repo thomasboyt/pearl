@@ -6,12 +6,11 @@ node_js:
 before_install:
   - 'npm install -g npm@latest'
 
+before_script:
+  - npm run bootstrap
+
 notifications:
   email: false
-
-dependencies:
-  - post
-    - npm run bootstrap
 
 cache:
   directories:
