@@ -63,3 +63,17 @@ npm run bootstrap
 ```
 
 Also, if you link a module that depends on Pearl (like `pearl-networking`), you'll _also need to link Pearl!_ Otherwise the type analysis will get all messed up because it won't be able to equate types between the Pearl inside the local monorepo and Pearl installed in the linker's `node_modules/`.
+
+### Caveats
+
+#### Lockfiles
+
+Pearl currently doesn't have a full lockfile, because [lockfiles in Lerna 3](https://github.com/lerna/lerna/issues/1462#issuecomment-410475552) seem to be an unanswered question. The lockfile only contains the `devDependencies` within the root `package.json`.
+
+This is more or less fine since the only things that really need to be locked are, in fact, the common dev dependencies - remember, NPM doesn't use lockfiles when installing packages, so having lockfiles for published `packages/` is kinda pointless (you'd want to be developing against the versions of dependencies your users would be using).
+
+The only thing to watch out for is that you can't use `npm ci` to install dependencies in this project, since it'll freak out that `package-lock.json` doesn't match `package.json`.
+
+#### npx
+
+`npx` isn't able to resolve `.bin/` dependencies from a parent folder (see https://github.com/zkat/npx/issues/118), meaning if you want to run a hoisted dependency's bin script inside a specific package's folder, you'll need to use `../../node_modules/.bin/<command>`  instead of `npx`.
