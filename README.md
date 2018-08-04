@@ -12,50 +12,29 @@ Pearl aims to be a a simpler, code-only alternative to full-scale frameworks lik
 
 ### Build
 
-To build once:
+Pearl is in a monorepo powered by Lerna, which has some quirks. To install:
 
 ```text
-npm run build
+npm install
+npx lerna bootstrap --hoist
 ```
 
-To watch:
+Then to actually build:
 
 ```text
-npm run watch
+npx lerna run build
 ```
+
+There's no harm to running individual builds for individual projects as you work on them, but watch out for dependency ordering issues.
 
 ### Test
 
-Tests are run through jest:
+Tests can be run through the root of the project (for all packages), or through an individual package, with `npm test`:
 
 ```text
 npm test
 ```
 
-### View Examples
+Everything uses Jest for testing.
 
-Examples are built and hosted through Webpack. Run:
-
-```text
-npm install
-npm run run-examples
-```
-
-and open `localhost:8080` in your browser.
-
-## Todo
-
-* [ ] Impliment max substeps in update loop
-* [ ] Add new examples
-* [ ] Write more tests!
-* [ ] Autofocus
-* [x] Improve coroutine API:
-  * [https://twitter.com/machty/status/756266064049233920](https://twitter.com/machty/status/756266064049233920)
-  * [https://twitter.com/drosenwasser/status/756359260380856320](https://twitter.com/drosenwasser/status/756359260380856320)
-* [x] Fix `"Cannot find module 'sat'"` errors when importing TypeScript definition
-* [x] Ship babel-compiled version
-* [x] Add retina scaling to canvas
-* [x] Fix abstract class usage
-* [x] New tests!
-* [x] Investigate coroutine scheduling \(e.g. [http://docs.unity3d.com/ScriptReference/MonoBehaviour.StartCoroutine.html?from=Coroutine](http://docs.unity3d.com/ScriptReference/MonoBehaviour.StartCoroutine.html?from=Coroutine)\)
-
+Note that packages that import other packages are importing their _build artifacts_, not their original source. This means that you should make sure to rebuild with `npm run build` before re-running your test if you change a dependency.
