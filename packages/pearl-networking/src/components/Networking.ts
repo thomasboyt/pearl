@@ -1,23 +1,6 @@
-import { Component, Entity, PearlInstance } from 'pearl';
+import { Component, Entity } from 'pearl';
 import NetworkedEntity from './NetworkedEntity';
-
-export interface EntitySnapshot {
-  id: string;
-  type: string;
-  state: any;
-}
-
-export interface Snapshot {
-  entities: EntitySnapshot[];
-  clock: number;
-}
-
-export interface NetworkedPrefab {
-  type: string;
-  tags?: string[];
-  zIndex?: number;
-  createComponents: (pearl: PearlInstance) => Component<any>[];
-}
+import { Snapshot, EntitySnapshot, NetworkedPrefab } from '../types';
 
 interface Opts {
   prefabs: { [_: string]: NetworkedPrefab };

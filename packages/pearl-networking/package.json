@@ -13,8 +13,7 @@
   },
   "devDependencies": {
     "@types/webrtc": "^0.0.23",
-    "pearl": "0.0.6",
-    "typescript": "^2.9.2"
+    "pearl": "0.0.6"
   },
   "peerDependencies": {
     "pearl": "*"

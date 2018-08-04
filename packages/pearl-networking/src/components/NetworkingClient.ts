@@ -1,5 +1,6 @@
 import { Entity } from 'pearl';
-import Networking, { Snapshot } from './Networking';
+import Networking from './Networking';
+import { Snapshot } from '../types';
 
 // TODO: replace this with something better?
 import PlayerInputter from '../util/PlayerInputter';

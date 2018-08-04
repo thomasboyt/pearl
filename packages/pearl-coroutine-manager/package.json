@@ -12,8 +12,7 @@
     "build": "tsc"
   },
   "devDependencies": {
-    "ts-node": "^7.0.0",
-    "typescript": "^2.9.2"
+    "ts-node": "^7.0.0"
   },
   "author": "Thomas Boyt <me@thomasboyt.com>",
   "license": "MIT"

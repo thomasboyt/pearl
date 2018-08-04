@@ -1,6 +1,7 @@
 import { Entity } from 'pearl';
 
-import Networking, { Snapshot, EntitySnapshot } from './Networking';
+import Networking from './Networking';
+import { Snapshot, EntitySnapshot } from '../types';
 import NetworkedEntity from './NetworkedEntity';
 import Delegate from '../util/Delegate';
 import HostConnection from '../HostConnection';
