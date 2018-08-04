@@ -8,7 +8,7 @@
     "dist"
   ],
   "scripts": {
-    "prepare": "tsc",
+    "prepublishOnly": "tsc",
     "build": "tsc",
     "watch": "tsc --watch",
     "test": "jest"
