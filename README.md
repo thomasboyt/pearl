@@ -48,3 +48,18 @@ To publish to NPM:
 ```text
 npx lerna publish
 ```
+
+### Using `npm link`
+
+NPM links kinda mess things up by default with this monorepo, because it'll run `npm install` inside a folder, which leads to duplicate dependencies in `node_modules/` and all sorts of mess. It's still doable, you'll just want to remove the added packages & lockfile and re-run `lerna bootstrap`:
+
+```text
+cd packages/pearl
+npm link
+rm package-lock.json
+rm node_modules/
+cd ../..
+npm run bootstrap
+```
+
+Also, if you link a module that depends on Pearl (like `pearl-networking`), you'll _also need to link Pearl!_ Otherwise the type analysis will get all messed up because it won't be able to equate types between the Pearl inside the local monorepo and Pearl installed in the linker's `node_modules/`.
