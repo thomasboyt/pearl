@@ -137,3 +137,13 @@ export function rotate(v: Vector2, radians: number): Vector2 {
     y: cos * v.y + sin * v.x,
   };
 }
+
+/**
+ * Reflect a given vector off a specified normal.
+ *
+ * Source: https://math.stackexchange.com/a/13263
+ */
+export function reflect(vec: Vector2, normal: Vector2): Vector2 {
+  normal = unit(normal);
+  return subtract(vec, multiply(normal, 2 * dot(vec, normal)));
+}
