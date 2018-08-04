@@ -1,6 +1,6 @@
 {
   "name": "pearl",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A TypeScript framework for games",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -22,7 +22,7 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
-    "@tboyt/coroutine-manager": "^0.0.5",
+    "@tboyt/coroutine-manager": "0.0.6",
     "@types/sat": "0.0.29",
     "@types/uuid": "^3.4.3",
     "fast-equals": "^1.5.3",
