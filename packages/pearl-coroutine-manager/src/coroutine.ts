@@ -1,10 +1,15 @@
 export type Yieldable = Promise<any> | undefined;
+export type Runnable =
+  | (() => IterableIterator<Yieldable>)
+  | IterableIterator<Yieldable>;
 
 export default class CoroutineManager {
   private _routines = new Set<IterableIterator<undefined>>();
 
-  run(gen: () => IterableIterator<Yieldable>) {
-    const coroutine = this.runCoroutine(gen());
+  run(gen: Runnable) {
+    const iterator = typeof gen === 'function' ? gen() : gen;
+    const coroutine = this.runCoroutine(iterator);
+
     this._routines.add(coroutine);
     return coroutine;
   }
