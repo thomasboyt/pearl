@@ -9,6 +9,7 @@
     "ts-jest": "^23.0.0"
   },
   "scripts": {
+    "bootstrap": "lerna bootstrap --hoist",
     "build": "lerna run build",
     "test": "npm run build && lerna run test"
   }

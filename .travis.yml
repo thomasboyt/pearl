@@ -9,6 +9,10 @@ before_install:
 notifications:
   email: false
 
+dependencies:
+  - post
+    - npm run bootstrap
+
 cache:
   directories:
     - node_modules
