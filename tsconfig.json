@@ -10,9 +10,5 @@
     "preserveConstEnums": true,
     "strict": true,
     "strictPropertyInitialization": false
-  },
-  "formatCodeOptions": {
-    "indentSize": 2,
-    "tabSize": 2
   }
 }
