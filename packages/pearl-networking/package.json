@@ -1,0 +1,25 @@
+{
+  "name": "pearl-networking",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "devDependencies": {
+    "@types/webrtc": "^0.0.23",
+    "jest": "^23.4.2",
+    "pearl": "*",
+    "typescript": "^2.9.2"
+  },
+  "peerDependencies": {
+    "pearl": "*"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "files": [
+    "dist"
+  ],
+  "author": "Thomas Boyt <me@thomasboyt.com>",
+  "license": "MIT"
+}
