@@ -13,6 +13,7 @@
       "exact": true
     },
     "bootstrap": {
+      "hoist": true,
       "npmClientArgs": [
         "--no-package-lock"
       ]
