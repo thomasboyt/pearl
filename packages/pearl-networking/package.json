@@ -9,12 +9,10 @@
   ],
   "scripts": {
     "prepublishOnly": "tsc",
-    "test": "jest",
     "build": "tsc"
   },
   "devDependencies": {
     "@types/webrtc": "^0.0.23",
-    "jest": "^23.4.2",
     "pearl": "0.0.6",
     "typescript": "^2.9.2"
   },

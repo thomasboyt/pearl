@@ -1,25 +1,12 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "module": "es2015",
-    "target": "es2015",
-    "outDir": "./dist",
-    "moduleResolution": "node",
-    "inlineSourceMap": true,
-    "inlineSources": true,
-    "declaration": true,
-    "removeComments": false,
-    "preserveConstEnums": true,
-    "strict": true,
-    "strictPropertyInitialization": false
+    "outDir": "./dist"
   },
   "include": [
     "src/**/*"
   ],
   "exclude": [
     "src/**/*.spec.*"
-  ],
-  "formatCodeOptions": {
-    "indentSize": 2,
-    "tabSize": 2
-  }
+  ]
 }

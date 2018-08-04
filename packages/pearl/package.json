@@ -10,14 +10,12 @@
   "scripts": {
     "prepublishOnly": "tsc",
     "build": "tsc",
-    "watch": "tsc --watch",
-    "test": "jest"
+    "watch": "tsc --watch"
   },
   "author": "Thomas Boyt <me@thomasboyt.com>",
   "license": "MIT",
   "devDependencies": {
     "canvas-prebuilt": "^1.6.5-prerelease.1",
-    "jest": "^23.4.2",
     "node-pre-gyp": "^0.10.0",
     "typescript": "^2.9.2"
   },

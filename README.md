@@ -10,13 +10,15 @@ Pearl aims to be a a simpler, code-only alternative to full-scale frameworks lik
 
 ## Development Overview
 
+Pearl is in a monorepo powered by [Lerna](https://github.com/lerna/lerna), which has a lot of quirks. It's currently using Lerna v3 which just entered RC, but still seems very underdocumented and in flux.
+
 ### Build
 
-Pearl is in a monorepo powered by Lerna, which has some quirks. To install:
+To install:
 
 ```text
 npm install
-npx lerna bootstrap --hoist
+npx lerna bootstrap
 ```
 
 Then to actually build:
@@ -38,3 +40,11 @@ npm test
 Everything uses Jest for testing.
 
 Note that packages that import other packages are importing their _build artifacts_, not their original source. This means that you should make sure to rebuild with `npm run build` before re-running your test if you change a dependency.
+
+### Release
+
+To publish to NPM:
+
+```text
+npx lerna publish
+```
