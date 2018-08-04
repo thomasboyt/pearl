@@ -9,26 +9,17 @@
   ],
   "scripts": {
     "prepare": "tsc",
+    "build": "tsc",
     "watch": "tsc --watch",
-    "build-examples": "webpack --config webpack/examples.config.js",
-    "examples": "webpack-serve webpack/examples.config.js",
     "test": "jest"
   },
   "author": "Thomas Boyt <me@thomasboyt.com>",
   "license": "MIT",
   "devDependencies": {
-    "@types/jest": "^23.1.0",
     "canvas-prebuilt": "^1.6.5-prerelease.1",
-    "eslint": "^3.2.2",
-    "jest": "^23.1.0",
+    "jest": "^23.4.2",
     "node-pre-gyp": "^0.10.0",
-    "prettier": "^1.13.5",
-    "ts-jest": "^22.4.6",
-    "ts-loader": "^4.4.1",
-    "typescript": "^2.9.0",
-    "url-loader": "^1.0.1",
-    "webpack": "^4.12.0",
-    "webpack-serve": "^1.0.4"
+    "typescript": "^2.9.2"
   },
   "dependencies": {
     "@tboyt/coroutine-manager": "0.0.3",
