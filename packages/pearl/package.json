@@ -22,7 +22,7 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
-    "@tboyt/coroutine-manager": "0.0.3",
+    "@tboyt/coroutine-manager": "^0.0.5",
     "@types/sat": "0.0.29",
     "@types/uuid": "^3.4.3",
     "fast-equals": "^1.5.3",
