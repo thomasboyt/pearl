@@ -7,7 +7,7 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   // workaround: https://github.com/facebook/jest/issues/6766
   testURL: 'http://localhost',
-  transformIgnorePatterns: ['node_modules/(?!pearl|@tboyt/coroutine-manager)'],
+  transformIgnorePatterns: ['node_modules/(?!pearl)'],
   globals: {
     'ts-jest': {
       tsConfigFile: './jest.tsconfig.json',

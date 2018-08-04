@@ -77,3 +77,9 @@ The only thing to watch out for is that you can't use `npm ci` to install depend
 #### npx
 
 `npx` isn't able to resolve `.bin/` dependencies from a parent folder (see https://github.com/zkat/npx/issues/118), meaning if you want to run a hoisted dependency's bin script inside a specific package's folder, you'll need to use `../../node_modules/.bin/<command>`  instead of `npx`.
+
+#### Using sibling packages in tests
+
+Remember that packages in this repo import the `dist` folders of sibling packages, even in development. If you change a sibling package, you'll want to rebuild it before e.g. re-running tests. Root-level `npm test` handles this for you.
+
+Pearl currently ships certain packages as ES6 modules to allow for fancy code-shaking. This is one of those things that's totally fine until you try to use the wrong tool that can't handle ES modules, and one of those tools is Jest. There's a workaround for this that basically boils down to "run the TypeScript compiler on certain JS files in `node_modules/`"; see `jest.config.js` and `jest.tsconfig.json` for details. Note that this is also an issue with adding tests to any Pearl game, and this documentation should be included in a section on testing at some point.
