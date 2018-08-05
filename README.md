@@ -1,5 +1,7 @@
 # Pearl
 
+[![Build Status](https://travis-ci.org/thomasboyt/pearl.svg?branch=master)](https://travis-ci.org/thomasboyt/pearl)
+
 Pearl is a small framework for creating video games in the browser. It's written in TypeScript, but can be used in any language that compiles to JavaScript.
 
 Pearl aims to be a a simpler, code-only alternative to full-scale frameworks like [Unity](http://unity3d.com/) or [Superpowers](http://superpowers-html5.com/). Like those frameworks, Pearl uses the [Component](http://gameprogrammingpatterns.com/component.html) pattern to avoid complex object hierarchies and difficult-to-decompose entities. Unlike those frameworks, Pearl is a _code-only framework_, and does not include any editor or special tooling.
