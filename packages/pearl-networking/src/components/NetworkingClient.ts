@@ -1,11 +1,17 @@
 import { Entity } from 'pearl';
 import Networking from './Networking';
-import { Snapshot } from '../types';
+import {
+  SnapshotMessage,
+  RpcMessage,
+  SnapshotMessageData,
+  RpcMessageData,
+  ServerMessage,
+  ClientMessage,
+} from '../messages';
 
 // TODO: replace this with something better?
 import PlayerInputter from '../util/PlayerInputter';
 import NetworkedEntity from './NetworkedEntity';
-import { RpcMessage } from './NetworkingHost';
 import ClientConnection from '../ClientConnection';
 
 interface ConnectionOptions {
@@ -41,7 +47,7 @@ export default class NetworkingClient extends Networking {
   }
 
   onMessage(strData: any) {
-    const msg = JSON.parse(strData);
+    const msg = JSON.parse(strData) as ServerMessage;
 
     if (msg.type === 'snapshot') {
       this.onSnapshot(msg.data);
@@ -52,11 +58,12 @@ export default class NetworkingClient extends Networking {
       this.errorReason = 'Room at max capacity';
     } else if (msg.type === 'rpc') {
       this.handleRpc(msg.data);
-    } else if (msg.type === 'ping') {
-      // this.sendToHost({
-      //   type: 'pong',
-      // });
     }
+    // else if (msg.type === 'ping') {
+    // this.sendToHost({
+    //   type: 'pong',
+    // });
+    // }
   }
 
   onOpen() {
@@ -92,7 +99,7 @@ export default class NetworkingClient extends Networking {
     }
   }
 
-  sendToHost(msg: any) {
+  sendToHost(msg: ClientMessage) {
     this.connection.send(JSON.stringify(msg));
   }
 
@@ -101,7 +108,7 @@ export default class NetworkingClient extends Networking {
     return this.instantiatePrefab(prefab, id);
   }
 
-  private onSnapshot(snapshot: Snapshot) {
+  private onSnapshot(snapshot: SnapshotMessageData) {
     const clock = snapshot.clock;
     if (clock < this.snapshotClock) {
       return;
@@ -136,7 +143,7 @@ export default class NetworkingClient extends Networking {
     }
   }
 
-  private handleRpc(rpc: RpcMessage) {
+  private handleRpc(rpc: RpcMessageData) {
     const { entityId, componentName, methodName, args } = rpc;
     const entity = this.networkedEntities.get(entityId);
 

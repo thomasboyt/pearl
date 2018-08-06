@@ -1,6 +1,6 @@
 import { Component, Entity } from 'pearl';
 import NetworkedEntity from './NetworkedEntity';
-import { Snapshot, EntitySnapshot, NetworkedPrefab } from '../types';
+import { NetworkedPrefab } from '../types';
 
 interface Opts {
   prefabs: { [_: string]: NetworkedPrefab };

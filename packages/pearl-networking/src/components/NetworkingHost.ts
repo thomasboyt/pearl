@@ -1,7 +1,13 @@
 import { Entity } from 'pearl';
 
 import Networking from './Networking';
-import { Snapshot, EntitySnapshot } from '../types';
+import {
+  EntitySnapshot,
+  SnapshotMessageData,
+  RpcMessageData,
+  ServerMessage,
+  ClientMessage,
+} from '../messages';
 import NetworkedEntity from './NetworkedEntity';
 import Delegate from '../util/Delegate';
 import HostConnection from '../HostConnection';
@@ -46,13 +52,6 @@ export class NetworkingPlayer {
 interface AddPlayerOpts {
   inputter: Inputter;
   isLocal?: boolean;
-}
-
-export interface RpcMessage {
-  entityId: string;
-  componentName: string;
-  methodName: string;
-  args: any[];
 }
 
 export default class NetworkingHost extends Networking {
@@ -107,12 +106,9 @@ export default class NetworkingHost extends Networking {
 
   private onPeerConnected(peerId: string) {
     if (this.players.size === MAX_CLIENTS) {
-      this.connection.sendPeer(
-        peerId,
-        JSON.stringify({
-          type: 'tooManyPlayers',
-        })
-      );
+      this.sendToPeer(peerId, {
+        type: 'tooManyPlayers',
+      });
       this.connection.closePeerConnection(peerId);
       return;
     }
@@ -123,29 +119,27 @@ export default class NetworkingHost extends Networking {
 
     this.peerIdToPlayerId.set(peerId, player.id);
 
-    this.connection.sendPeer(
-      peerId,
-      JSON.stringify({
-        type: 'identity',
-        data: {
-          id: player.id,
-        },
-      })
-    );
+    this.sendToPeer(peerId, {
+      type: 'identity',
+      data: {
+        id: player.id,
+      },
+    });
   }
 
   private onPeerMessage(peerId: string, data: string) {
     const player = this.players.get(this.peerIdToPlayerId.get(peerId)!)!;
-    const msg = JSON.parse(data);
+    const msg = JSON.parse(data) as ClientMessage;
 
     if (msg.type === 'keyDown') {
       this.onClientKeyDown(player, msg.data.keyCode);
     } else if (msg.type === 'keyUp') {
       this.onClientKeyUp(player, msg.data.keyCode);
-    } else if (msg.type === 'pong') {
-      // const ping = Date.now() - this.lastPingTime; this.pings.set(playerId,
-      // ping);
     }
+    // else if (msg.type === 'pong') {
+    // const ping = Date.now() - this.lastPingTime; this.pings.set(playerId,
+    // ping);
+    // }
   }
 
   private onPeerDisconnect(peerId: string) {
@@ -192,7 +186,7 @@ export default class NetworkingHost extends Networking {
   update(dt: number) {
     const snapshot = this.serializeSnapshot();
 
-    this.sendToPeers(
+    this.sendAll(
       {
         type: 'snapshot',
         data: snapshot,
@@ -234,11 +228,18 @@ export default class NetworkingHost extends Networking {
     return entity;
   }
 
-  private sendToPeers(
-    msg: any,
+  private sendToPeer(
+    peerId: string,
+    msg: ServerMessage,
+    channel: 'reliable' | 'unreliable' = 'reliable'
+  ) {
+    this.connection.sendPeer(peerId, JSON.stringify(msg), channel);
+  }
+
+  private sendAll(
+    msg: ServerMessage,
     channel: 'reliable' | 'unreliable' = 'reliable'
   ): void {
-    // const serialized = serializeMessage('host', msg);
     const serialized = JSON.stringify(msg);
 
     for (let peerId of this.peerIdToPlayerId.keys()) {
@@ -246,7 +247,7 @@ export default class NetworkingHost extends Networking {
     }
   }
 
-  private serializeSnapshot(): Snapshot {
+  private serializeSnapshot(): SnapshotMessageData {
     this.snapshotClock += 1;
 
     const networkedEntities = [...this.networkedEntities.values()];
@@ -298,8 +299,8 @@ export default class NetworkingHost extends Networking {
     }
   }
 
-  dispatchRpc(opts: RpcMessage) {
-    this.sendToPeers({
+  dispatchRpc(opts: RpcMessageData) {
+    this.sendAll({
       type: 'rpc',
       data: opts,
     });
