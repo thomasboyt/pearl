@@ -54,7 +54,7 @@ npx lerna publish
 
 #### Linking local projects to local Pearl packages
 
-If you're working on an addition to Pearl in tandem with a game or two, you'll want to link your local **Don't use `npm link`!**  `npm link` is incompatible with the way this monorepo works, in which packages never install their own dependencies - the root package always does. `npm link` _runs `npm install`_ when creating the link, which obviously breaks this.
+If you're working on an addition to Pearl in tandem with a game or two, you'll want to link your game's dependencies to your local Pearl repo. **Don't use `npm link`!**  `npm link` is incompatible with the way this monorepo works, in which packages never install their own dependencies - the root package always does. `npm link` _runs `npm install`_ when creating the link, which obviously breaks this.
 
 Never fear, though, because at the end of the day, all `npm link` does is create a symlink to directory, which is very easy to do in a shell script. At the root of your project, add a `link.sh` script:
 
