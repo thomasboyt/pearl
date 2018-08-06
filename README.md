@@ -12,7 +12,7 @@ Pearl aims to be a a simpler, code-only alternative to full-scale frameworks lik
 
 ## Development Overview
 
-Pearl is in a monorepo powered by [Lerna](https://github.com/lerna/lerna), which has a lot of quirks. It's currently using Lerna v3 which just entered RC, but still seems very underdocumented and in flux.
+Pearl is in a monorepo powered by [Lerna](https://github.com/lerna/lerna), which has a lot of quirks. It's currently using Lerna v3 which just entered RC, but still seems very underdocumented and in flux. If you've used Lerna before, note that this repo *does not use the normal `lerna bootstrap` method*, instead linking everything together via NPM's `file:` specifiers. See [this Lerna GitHub issue](https://github.com/lerna/lerna/issues/1462#issuecomment-410536290) for a little more detail on this.
 
 ### Build
 
@@ -20,7 +20,6 @@ To install:
 
 ```text
 npm install
-npx lerna bootstrap
 ```
 
 Then to actually build:
@@ -53,28 +52,27 @@ npx lerna publish
 
 ### Caveats
 
-#### Using `npm link`
+#### Linking local projects to local Pearl packages
 
-NPM links kinda mess things up by default with this monorepo, because it'll run `npm install` inside a folder, which leads to duplicate dependencies in `node_modules/` and all sorts of mess. It's still doable, you'll just want to remove the added packages & lockfile and re-run `lerna bootstrap`:
+If you're working on an addition to Pearl in tandem with a game or two, you'll want to link your local **Don't use `npm link`!**  `npm link` is incompatible with the way this monorepo works, in which packages never install their own dependencies - the root package always does. `npm link` _runs `npm install`_ when creating the link, which obviously breaks this.
 
-```text
-cd packages/pearl
-npm link
-rm package-lock.json
-rm node_modules/
-cd ../..
-npm run bootstrap
+Never fear, though, because at the end of the day, all `npm link` does is create a symlink to directory, which is very easy to do in a shell script. At the root of your project, add a `link.sh` script:
+
+```sh
+# link.sh
+
+# the 2> /dev/null bit here ignores errors
+rm node_modules/pearl node_modules/pearl-networking 2> /dev/null
+
+# replace /Users/tboyt/Coding/pearl with the path to your local repo here:
+ln -s /Users/tboyt/Coding/pearl/packages/pearl node_modules/pearl
+# ...any other packages you want to  link go here, e.g.
+# ln -s /Users/tboyt/Coding/pearl/packages/pearl-networking node_modules/pearl-networking
 ```
 
-Also, if you link a module that depends on Pearl (like `pearl-networking`), you'll _also need to link Pearl!_ Otherwise the type analysis will get all messed up because it won't be able to equate types between the Pearl inside the local monorepo and Pearl installed in the linker's `node_modules/`.
+Just run this script once to create the link, and *re-run it every time you re-run `npm install`*. I know that latter bit is annoying, but it's currently an issue with `npm link` too.
 
-#### Lockfiles
-
-Pearl currently doesn't have a full lockfile, because [lockfiles in Lerna 3](https://github.com/lerna/lerna/issues/1462#issuecomment-410475552) seem to be an unanswered question. The lockfile only contains the `devDependencies` within the root `package.json`.
-
-This is more or less fine since the only things that really need to be locked are, in fact, the common dev dependencies - remember, NPM doesn't use lockfiles when installing packages, so having lockfiles for published `packages/` is kinda pointless (you'd want to be developing against the versions of dependencies your users would be using).
-
-The only thing to watch out for is that you can't use `npm ci` to install dependencies in this project, since it'll freak out that `package-lock.json` doesn't match `package.json`.
+All of this should go away with the simplified [npm link usage in NPM 7](https://github.com/npm/rfcs/pull/3), so look forward to that.
 
 #### npx
 

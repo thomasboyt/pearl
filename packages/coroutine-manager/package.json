@@ -11,9 +11,6 @@
     "prepublishOnly": "tsc",
     "build": "tsc"
   },
-  "devDependencies": {
-    "ts-node": "^7.0.0"
-  },
   "author": "Thomas Boyt <me@thomasboyt.com>",
   "license": "MIT"
 }
