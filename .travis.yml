@@ -6,10 +6,6 @@ node_js:
 before_install:
   - 'npm install -g npm@latest'
 
-install:
-  - npm install
-  - ./node_modules/.bin/lerna bootstrap --hoist --ci
-
 notifications:
   email: false
 
