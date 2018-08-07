@@ -22,12 +22,13 @@ interface ConnectionOptions {
 type ConnectionState = 'connecting' | 'connected' | 'error' | 'closed';
 
 export default class NetworkingClient extends Networking {
-  private connection!: ClientConnection;
+  isHost = false;
   connectionState: ConnectionState = 'connecting';
   errorReason?: string;
+
+  private connection!: ClientConnection;
   private snapshotClock = 0;
   private inputter?: PlayerInputter;
-  isHost = false;
 
   connect(connectionOptions: ConnectionOptions) {
     const connection = new ClientConnection(connectionOptions.groovejetUrl);
@@ -46,7 +47,7 @@ export default class NetworkingClient extends Networking {
     return promise;
   }
 
-  onMessage(strData: any) {
+  private onMessage(strData: any) {
     const msg = JSON.parse(strData) as ServerMessage;
 
     if (msg.type === 'snapshot') {
@@ -66,7 +67,7 @@ export default class NetworkingClient extends Networking {
     // }
   }
 
-  onOpen() {
+  private onOpen() {
     this.connectionState = 'connected';
 
     this.inputter = new PlayerInputter({
@@ -91,7 +92,7 @@ export default class NetworkingClient extends Networking {
     this.inputter.registerLocalListeners();
   }
 
-  onClose() {
+  private onClose() {
     this.connectionState = 'closed';
     if (this.inputter) {
       this.inputter.onKeyDown = () => {};
@@ -99,7 +100,7 @@ export default class NetworkingClient extends Networking {
     }
   }
 
-  sendToHost(msg: ClientMessage) {
+  private sendToHost(msg: ClientMessage) {
     this.connection.send(JSON.stringify(msg));
   }
 

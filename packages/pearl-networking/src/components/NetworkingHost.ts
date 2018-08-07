@@ -55,16 +55,15 @@ interface AddPlayerOpts {
 }
 
 export default class NetworkingHost extends Networking {
-  peerIdToPlayerId = new Map<string, number>();
-  players = new Map<number, NetworkingPlayer>();
-
+  isHost = true;
+  connectionState: 'connecting' | 'open' | 'closed' = 'connecting';
   onPlayerAdded = new Delegate<OnPlayerAddedMsg>();
   onPlayerRemoved = new Delegate<OnPlayerAddedMsg>();
 
-  connectionState: 'connecting' | 'open' | 'closed' = 'connecting';
   private connection!: HostConnection;
   private snapshotClock = 0;
-  isHost = true;
+  private peerIdToPlayerId = new Map<string, number>();
+  private players = new Map<number, NetworkingPlayer>();
 
   // XXX: might be good in the future to have this use coroutines, once
   // coroutines can yield other coroutines. for now, should be okay since this
@@ -102,6 +101,22 @@ export default class NetworkingHost extends Networking {
     this.connection.connectRoom(roomCode);
 
     return promise;
+  }
+
+  createNetworkedPrefab(name: string): Entity {
+    const prefab = this.getPrefab(name);
+    const entity = this.instantiatePrefab(prefab);
+    this.wrapRpcFunctions(entity);
+    return entity;
+  }
+
+  addLocalPlayer() {
+    const player = this.addPlayer({
+      inputter: this.pearl.inputter,
+      isLocal: true,
+    });
+
+    this.setIdentity(player.id);
   }
 
   private onPeerConnected(peerId: string) {
@@ -170,15 +185,6 @@ export default class NetworkingHost extends Networking {
     return player;
   }
 
-  addLocalPlayer() {
-    const player = this.addPlayer({
-      inputter: this.pearl.inputter,
-      isLocal: true,
-    });
-
-    this.setIdentity(player.id);
-  }
-
   private removePlayer(player: NetworkingPlayer): void {
     this.onPlayerRemoved.call({ networkingPlayer: player });
   }
@@ -219,13 +225,6 @@ export default class NetworkingHost extends Networking {
     if (player.inputter instanceof NetworkedInputter) {
       player.inputter.keysDown.delete(keyCode);
     }
-  }
-
-  createNetworkedPrefab(name: string): Entity {
-    const prefab = this.getPrefab(name);
-    const entity = this.instantiatePrefab(prefab);
-    this.wrapRpcFunctions(entity);
-    return entity;
   }
 
   private sendToPeer(
@@ -299,7 +298,7 @@ export default class NetworkingHost extends Networking {
     }
   }
 
-  dispatchRpc(opts: RpcMessageData) {
+  private dispatchRpc(opts: RpcMessageData) {
     this.sendAll({
       type: 'rpc',
       data: opts,
