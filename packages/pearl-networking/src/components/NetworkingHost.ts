@@ -59,11 +59,11 @@ export default class NetworkingHost extends Networking {
   connectionState: 'connecting' | 'open' | 'closed' = 'connecting';
   onPlayerAdded = new Delegate<OnPlayerAddedMsg>();
   onPlayerRemoved = new Delegate<OnPlayerAddedMsg>();
+  players = new Map<number, NetworkingPlayer>();
 
   private connection!: HostConnection;
   private snapshotClock = 0;
   private peerIdToPlayerId = new Map<string, number>();
-  private players = new Map<number, NetworkingPlayer>();
 
   // XXX: might be good in the future to have this use coroutines, once
   // coroutines can yield other coroutines. for now, should be okay since this
