@@ -10,7 +10,7 @@ import {
 } from '../messages';
 import NetworkedEntity from './NetworkedEntity';
 import Delegate from '../util/Delegate';
-import HostConnection from '../HostConnection';
+import { HostConnection } from 'pearl-multiplayer-socket';
 
 let playerIdCounter = 0;
 

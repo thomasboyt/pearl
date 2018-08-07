@@ -1,5 +1,5 @@
 {
-  "name": "pearl-networking",
+  "name": "pearl-multiplayer-socket",
   "version": "0.0.7",
   "description": "",
   "main": "dist/index.js",
@@ -10,15 +10,6 @@
   "scripts": {
     "prepublishOnly": "tsc",
     "build": "tsc"
-  },
-  "dependencies": {
-    "pearl-multiplayer-socket": "file:../pearl-multiplayer-socket"
-  },
-  "devDependencies": {
-    "pearl": "file:../pearl"
-  },
-  "peerDependencies": {
-    "pearl": "*"
   },
   "author": "Thomas Boyt <me@thomasboyt.com>",
   "license": "MIT"

@@ -12,7 +12,7 @@ import {
 // TODO: replace this with something better?
 import PlayerInputter from '../util/PlayerInputter';
 import NetworkedEntity from './NetworkedEntity';
-import ClientConnection from '../ClientConnection';
+import { ClientConnection } from 'pearl-multiplayer-socket';
 
 interface ConnectionOptions {
   groovejetUrl: string;

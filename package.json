@@ -21,6 +21,7 @@
   "dependencies": {
     "@tboyt/coroutine-manager": "file:packages/coroutine-manager",
     "pearl": "file:packages/pearl",
+    "pearl-multiplayer-socket": "file:packages/pearl-multiplayer-socket",
     "pearl-networking": "file:packages/pearl-networking"
   }
 }

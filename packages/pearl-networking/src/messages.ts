@@ -49,7 +49,6 @@ export type ServerMessage =
   | SnapshotMessage
   | IdentityMessage
   | TooManyPlayersMessage;
-// export type ClientMessage =
 
 export interface InputKeyMessageData {
   keyCode: number;
