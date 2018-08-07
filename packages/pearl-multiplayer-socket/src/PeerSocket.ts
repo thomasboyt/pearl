@@ -1,5 +1,4 @@
-const ENABLE_LOGGING = true;
-const debugLog = (...msgs: any[]) => ENABLE_LOGGING && console.log(...msgs);
+import debugLog from './util/debugLog';
 
 interface PeerSocketOptions {
   onOpen: () => void;

@@ -1,6 +1,7 @@
 import GroovejetClient from './groovejet/GroovejetClient';
 import PeerSocket from './PeerSocket';
 import { createRoom } from './groovejet/GroovejetHTTP';
+import debugLog from './util/debugLog';
 
 type PeerId = string;
 
@@ -47,7 +48,7 @@ export default class HostConnection {
     peerId: PeerId,
     offer: RTCSessionDescriptionInit
   ) {
-    console.log('* host: creating peer & answer');
+    debugLog('* host: creating peer & answer');
 
     const peer = new PeerSocket({
       onOpen: () => {
@@ -66,7 +67,7 @@ export default class HostConnection {
     const answer = await peer.handleOffer(offer);
     this._groovejet.sendHostAnswerSignal(peerId, answer);
 
-    console.log('* host: sent host answer');
+    debugLog('* host: sent host answer');
   }
 
   sendPeer(

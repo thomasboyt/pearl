@@ -1,5 +1,6 @@
 import GroovejetClient from './groovejet/GroovejetClient';
 import PeerSocket from './PeerSocket';
+import debugLog from './util/debugLog';
 
 export default class ClientConnection {
   private _groovejet!: GroovejetClient;
@@ -34,7 +35,7 @@ export default class ClientConnection {
   }
 
   private async _onGroovejetOpen() {
-    console.log('* client: groovejet open');
+    debugLog('* client: groovejet open');
     this.lobbyConnectionState = 'open';
     this.hostConnectionState = 'connecting';
 
@@ -54,13 +55,13 @@ export default class ClientConnection {
 
     const offer = await this._hostSocket.createOffer();
     this._groovejet.sendClientOfferSignal(offer);
-    console.log('* client: sent client offer signal');
+    debugLog('* client: sent client offer signal');
   }
 
   private async _onHostAnswer(answer: RTCSessionDescriptionInit) {
-    console.log('* client: received answer');
+    debugLog('* client: received answer');
     await this._hostSocket.handleAnswer(answer);
-    console.log('* client: handled answer');
+    debugLog('* client: handled answer');
   }
 
   send(msg: any, channelLabel: 'unreliable' | 'reliable' = 'reliable'): void {

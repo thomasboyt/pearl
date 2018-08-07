@@ -1,3 +1,5 @@
+import debugLog from '../util/debugLog';
+
 type OnClientOfferSignal = (
   clientId: string,
   offerSignal: RTCSessionDescriptionInit
@@ -47,7 +49,7 @@ export default class GroovejetClient {
   }
 
   private handleOpen() {
-    console.log('*** Connected to Groovejet server');
+    debugLog('*** Connected to Groovejet server');
     this.onOpen();
   }
 
@@ -64,7 +66,7 @@ export default class GroovejetClient {
   }
 
   private handleClose() {
-    console.error('*** Lost connection to lobby server');
+    debugLog('*** Lost connection to lobby server');
     this.onClose();
   }
 
