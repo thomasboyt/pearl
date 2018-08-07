@@ -120,39 +120,6 @@ export default class PeerSocket {
     return this._peer.localDescription! as any;
   }
 
-  _registerChannel(label: 'reliable' | 'unreliable', channel: RTCDataChannel) {
-    this._channels[label] = channel;
-
-    channel.binaryType = 'arraybuffer';
-
-    channel.onopen = () => {
-      // XXX: both channels change readyState on the same tick, so this always
-      // gets called twice, which is why the allReady + state check is important
-      const allReady = [
-        this._channels.reliable,
-        this._channels.unreliable,
-      ].every((channel) => {
-        return channel !== undefined && channel.readyState === 'open';
-      });
-
-      debugLog('opened channel', label);
-
-      if (allReady && this.state === 'connecting') {
-        this.state = 'open';
-        this.onOpen();
-      }
-    };
-
-    channel.onclose = () => {
-      // if either channel closes, we kill the connection
-      this.close();
-    };
-
-    channel.onmessage = (evt) => {
-      this.onMessage(evt);
-    };
-  }
-
   /**
    * Set the offer and return the answer session description to send back to the
    * signaling server.
@@ -229,5 +196,41 @@ export default class PeerSocket {
     }
 
     this.onClose();
+  }
+
+  private _registerChannel(
+    label: 'reliable' | 'unreliable',
+    channel: RTCDataChannel
+  ) {
+    this._channels[label] = channel;
+
+    channel.binaryType = 'arraybuffer';
+
+    channel.onopen = () => {
+      // XXX: both channels change readyState on the same tick, so this always
+      // gets called twice, which is why the allReady + state check is important
+      const allReady = [
+        this._channels.reliable,
+        this._channels.unreliable,
+      ].every((channel) => {
+        return channel !== undefined && channel.readyState === 'open';
+      });
+
+      debugLog('opened channel', label);
+
+      if (allReady && this.state === 'connecting') {
+        this.state = 'open';
+        this.onOpen();
+      }
+    };
+
+    channel.onclose = () => {
+      // if either channel closes, we kill the connection
+      this.close();
+    };
+
+    channel.onmessage = (evt) => {
+      this.onMessage(evt);
+    };
   }
 }
