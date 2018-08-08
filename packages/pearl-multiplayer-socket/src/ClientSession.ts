@@ -2,7 +2,7 @@ import GroovejetClient from './groovejet/GroovejetClient';
 import PeerSocket from './PeerSocket';
 import debugLog from './util/debugLog';
 
-export default class ClientConnection {
+export default class ClientSession {
   private _groovejet!: GroovejetClient;
   private _hostSocket!: PeerSocket;
   private _groovejetUrl: string;

@@ -1,3 +1,3 @@
-export {default as ClientConnection} from './ClientConnection';
-export {default as HostConnection} from './HostConnection';
-export {default as PeerSocket} from './PeerSocket';
+export { default as ClientSession } from './ClientSession';
+export { default as HostSession } from './HostSession';
+export { default as PeerSocket } from './PeerSocket';

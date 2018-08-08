@@ -12,7 +12,7 @@ import {
 // TODO: replace this with something better?
 import PlayerInputter from '../util/PlayerInputter';
 import NetworkedEntity from './NetworkedEntity';
-import { ClientConnection } from 'pearl-multiplayer-socket';
+import { ClientSession } from 'pearl-multiplayer-socket';
 
 interface ConnectionOptions {
   groovejetUrl: string;
@@ -26,12 +26,12 @@ export default class NetworkingClient extends Networking {
   connectionState: ConnectionState = 'connecting';
   errorReason?: string;
 
-  private connection!: ClientConnection;
+  private connection!: ClientSession;
   private snapshotClock = 0;
   private inputter?: PlayerInputter;
 
   connect(connectionOptions: ConnectionOptions) {
-    const connection = new ClientConnection(connectionOptions.groovejetUrl);
+    const connection = new ClientSession(connectionOptions.groovejetUrl);
     this.connection = connection;
 
     const promise = new Promise((resolve, reject) => {

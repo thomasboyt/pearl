@@ -10,7 +10,7 @@ import {
 } from '../messages';
 import NetworkedEntity from './NetworkedEntity';
 import Delegate from '../util/Delegate';
-import { HostConnection } from 'pearl-multiplayer-socket';
+import { HostSession } from 'pearl-multiplayer-socket';
 
 let playerIdCounter = 0;
 
@@ -61,7 +61,7 @@ export default class NetworkingHost extends Networking {
   onPlayerRemoved = new Delegate<OnPlayerAddedMsg>();
   players = new Map<number, NetworkingPlayer>();
 
-  private connection!: HostConnection;
+  private connection!: HostSession;
   private snapshotClock = 0;
   private peerIdToPlayerId = new Map<string, number>();
 
@@ -69,7 +69,7 @@ export default class NetworkingHost extends Networking {
   // coroutines can yield other coroutines. for now, should be okay since this
   // component never gets destroyed
   async connect(groovejetUrl: string): Promise<string> {
-    const connection = new HostConnection(groovejetUrl);
+    const connection = new HostSession(groovejetUrl);
     this.connection = connection;
 
     const roomCode = await connection.getRoomCode();
