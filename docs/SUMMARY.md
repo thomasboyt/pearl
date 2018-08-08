@@ -12,5 +12,6 @@
   * [Entity & Component Lifecycle](writing-components/entity-and-component-lifecycle.md)
 * Networking
   * [Introduction](networking/introduction.md)
+* [Example Games](examples.md)
 * [Roadmap](roadmap.md)
 
