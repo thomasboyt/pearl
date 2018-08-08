@@ -29,8 +29,7 @@ export default class PeerSocket {
   onMessage = (evt: MessageEvent) => {};
   onClose = () => {};
   onError = (err: SocketError) => {
-    console.error('Unhandled PeerSocket error:');
-    throw err;
+    console.error('Unhandled PeerSocket error:', err);
   };
 
   private _peer: RTCPeerConnection;
@@ -91,6 +90,9 @@ export default class PeerSocket {
     this.onOpen = opts.onOpen;
     this.onMessage = opts.onMessage;
     this.onClose = opts.onClose;
+    if (opts.onError) {
+      this.onError = opts.onError;
+    }
   }
 
   /**
