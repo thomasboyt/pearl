@@ -1,6 +1,7 @@
 import { Component, Entity } from 'pearl';
 import Networking from './Networking';
 import * as uuidv4 from 'uuid/v4';
+import { NetworkedComponent } from '../types';
 
 interface Opts {
   type: string;
@@ -9,11 +10,6 @@ interface Opts {
 }
 
 type Snapshot = { [key: string]: any };
-
-interface NetworkedComponent extends Component<any> {
-  serialize: () => any;
-  deserialize: (snapshot: Snapshot, entitiesById: Map<String, Entity>) => void;
-}
 
 export default class NetworkedEntity extends Component<Opts> {
   networking!: Networking;
@@ -38,7 +34,7 @@ export default class NetworkedEntity extends Component<Opts> {
     const entitySnapshot: Snapshot = {};
 
     for (let component of this.entity.components) {
-      const networkedComponent = component as NetworkedComponent;
+      const networkedComponent = component as NetworkedComponent<Snapshot>;
 
       if (typeof networkedComponent.serialize === 'function') {
         const componentSnapshot = networkedComponent.serialize();
@@ -52,7 +48,7 @@ export default class NetworkedEntity extends Component<Opts> {
 
   clientDeserialize(snapshot: Snapshot, entitiesById: Map<string, Entity>) {
     for (let component of this.entity.components) {
-      const networkedComponent = component as NetworkedComponent;
+      const networkedComponent = component as NetworkedComponent<Snapshot>;
 
       if (typeof networkedComponent.deserialize === 'function') {
         const name = component.constructor.name;
