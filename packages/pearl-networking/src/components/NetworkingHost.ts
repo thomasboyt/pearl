@@ -255,10 +255,16 @@ export default class NetworkingHost extends Networking {
       (entity) => {
         const networkedEntity = entity.getComponent(NetworkedEntity);
 
+        let parentId;
+        if (entity.parent) {
+          parentId = entity.parent.getComponent(NetworkedEntity).id;
+        }
+
         return {
           id: networkedEntity.id,
           type: networkedEntity.type,
           state: networkedEntity.hostSerialize(),
+          parentId,
         };
       }
     );

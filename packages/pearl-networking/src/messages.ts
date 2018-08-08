@@ -19,6 +19,7 @@ export interface EntitySnapshot {
   id: string;
   type: string;
   state: any;
+  parentId: string | undefined;
 }
 
 export interface SnapshotMessageData {

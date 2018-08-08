@@ -136,6 +136,12 @@ export default class NetworkingClient extends Networking {
         .getComponent(NetworkedEntity)
         .clientDeserialize(snapshotEntity.state, this.networkedEntities);
 
+      if (snapshotEntity.parentId) {
+        const parent = this.networkedEntities.get(snapshotEntity.parentId)!;
+        // XXX: this is safe to do every frame since children is a set
+        parent.appendChild(entity);
+      }
+
       unseenIds.delete(snapshotEntity.id);
     }
 
