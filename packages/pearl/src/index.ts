@@ -73,3 +73,9 @@ export { default as CircleRenderer } from './components/CircleRenderer';
 export { default as SpriteRenderer } from './components/SpriteRenderer';
 
 export { default as AnimationManager } from './components/AnimationManager';
+
+export {
+  default as TileMapCollider,
+  ITileMap,
+  TileCollisionType,
+} from './components/tilemap/TileMapCollider';
