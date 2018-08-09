@@ -200,7 +200,15 @@ export default class Entity {
     for (let component of this.components) {
       component.update(dt);
     }
+  }
 
+  lateUpdate() {
+    for (let component of this.components) {
+      component.lateUpdate();
+    }
+  }
+
+  updateCoroutines() {
     this.coroutineManager.tick();
   }
 

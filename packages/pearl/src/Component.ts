@@ -59,6 +59,14 @@ abstract class Component<Settings> {
   }
 
   /**
+   * Hook called on every frame, after update()s have finished. Useful for e.g.
+   * clearing pressed buttons in a custom inputter.
+   */
+  lateUpdate() {
+    // no-op
+  }
+
+  /**
    * Hook called to draw to the canvas on every frame. Any drawing operations in
    * this function are wrapped with calls to ctx.save()/ctx.restore() to prevent
    * inadvertantly relying on previously-set canvas state.

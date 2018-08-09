@@ -24,6 +24,14 @@ export default class EntityManager {
     for (let entity of frameEntities) {
       entity.update(dt);
     }
+
+    for (let entity of frameEntities) {
+      entity.updateCoroutines();
+    }
+
+    for (let entity of frameEntities) {
+      entity.lateUpdate();
+    }
   }
 
   all(...tags: string[]): Entity[] {
