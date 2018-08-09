@@ -7,7 +7,7 @@
     "**/__tests__/**",
     "**/*.md"
   ],
-  "version": "0.0.9",
+  "version": "0.0.10",
   "command": {
     "publish": {
       "exact": true
