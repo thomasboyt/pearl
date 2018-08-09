@@ -88,28 +88,10 @@ export default class TileMapCollider extends Collider {
     const phys = this.entity.maybeGetComponent(Physical);
     const worldCenter = phys ? phys.center : { x: 0, y: 0 };
 
-    // TODO: getBoundingBox() doesn't take into account rotation
-    //
-    // TODO: I think this doesn't take into account relative center of tilemap.
-    //       Need to translate bounds relative to center so tile-based
-    //       comparisons work
-    const bounds = shape.getBoundingBox();
-    const xBounds = [
-      Math.floor(
-        (otherPosition.center.x + bounds.xMin) / this.tileMap.tileWidth
-      ),
-      Math.ceil(
-        (otherPosition.center.x + bounds.xMax) / this.tileMap.tileWidth
-      ),
-    ];
-    const yBounds = [
-      Math.floor(
-        (otherPosition.center.y + bounds.yMin) / this.tileMap.tileHeight
-      ),
-      Math.ceil(
-        (otherPosition.center.y + bounds.yMax) / this.tileMap.tileHeight
-      ),
-    ];
+    const { xBounds, yBounds } = this.getTileBoundsOfShape(
+      shape,
+      otherPosition
+    );
 
     for (let y = yBounds[0]; y <= yBounds[1]; y += 1) {
       for (let x = xBounds[0]; x <= xBounds[1]; x += 1) {
@@ -152,5 +134,36 @@ export default class TileMapCollider extends Collider {
         }
       }
     }
+  }
+
+  /**
+   * Get the minimum and maximum tile points a shape is overlapping. This is
+   * used for broadphase collision filtering, so that only tiles a shape could
+   * be overlapping are checked.
+   */
+  private getTileBoundsOfShape(shape: CollisionShape, position: Position) {
+    const phys = this.entity.maybeGetComponent(Physical);
+    const worldCenter = phys ? phys.center : { x: 0, y: 0 };
+
+    // offset the world position passed to testShape() by the position of the
+    // tilemap
+    const localPosition = {
+      x: position.center.x - worldCenter.x,
+      y: position.center.y - worldCenter.y,
+    };
+
+    // TODO: getBoundingBox() doesn't take into account rotation
+    const bounds = shape.getBoundingBox();
+
+    const xBounds = [
+      Math.floor((localPosition.x + bounds.xMin) / this.tileMap.tileWidth),
+      Math.ceil((localPosition.x + bounds.xMax) / this.tileMap.tileWidth),
+    ];
+    const yBounds = [
+      Math.floor((localPosition.y + bounds.yMin) / this.tileMap.tileHeight),
+      Math.ceil((localPosition.y + bounds.yMax) / this.tileMap.tileHeight),
+    ];
+
+    return { xBounds, yBounds };
   }
 }
