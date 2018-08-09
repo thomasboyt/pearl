@@ -1,6 +1,6 @@
 {
   "name": "@tboyt/coroutine-manager",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Coroutine manager for Pearl",
   "main": "dist/coroutine.js",
   "typings": "dist/coroutine.d.ts",
