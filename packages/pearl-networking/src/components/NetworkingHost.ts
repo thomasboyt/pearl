@@ -199,17 +199,14 @@ export default class NetworkingHost extends Networking {
       },
       'unreliable'
     );
+  }
 
-    // TODO: This is wrapped in setImmediate() so that keys aren't unset before
-    // everything else's update() hook is called This is a decent argument for
-    // adding a lateUpdate() hook that happens after update()
-    setImmediate(() => {
-      for (let player of this.players.values()) {
-        if (player.inputter instanceof NetworkedInputter) {
-          player.inputter.keysPressed = new Set();
-        }
+  lateUpdate() {
+    for (let player of this.players.values()) {
+      if (player.inputter instanceof NetworkedInputter) {
+        player.inputter.keysPressed = new Set();
       }
-    });
+    }
   }
 
   private onClientKeyDown(player: NetworkingPlayer, keyCode: number) {
