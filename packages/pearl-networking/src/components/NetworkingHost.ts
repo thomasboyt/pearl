@@ -210,18 +210,6 @@ export default class NetworkingHost extends Networking<Settings> {
     this.onPlayerRemoved.call({ networkingPlayer: player });
   }
 
-  update(dt: number) {
-    const snapshot = this.serializeSnapshot();
-
-    this.sendAll(
-      {
-        type: 'snapshot',
-        data: snapshot,
-      },
-      'unreliable'
-    );
-  }
-
   lateUpdate() {
     for (let player of this.players.values()) {
       if (player.inputter instanceof NetworkedInputter) {
@@ -237,6 +225,16 @@ export default class NetworkingHost extends Networking<Settings> {
     }
 
     this.createdEntitiesQueue = [];
+
+    const snapshot = this.serializeSnapshot();
+
+    this.sendAll(
+      {
+        type: 'snapshot',
+        data: snapshot,
+      },
+      'unreliable'
+    );
   }
 
   private onClientKeyDown(player: NetworkingPlayer, keyCode: number) {
