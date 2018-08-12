@@ -66,6 +66,7 @@ export default class NetworkingHost extends Networking<Settings> {
   private connection!: HostSession;
   private snapshotClock = 0;
   private peerIdToPlayerId = new Map<string, number>();
+  private createdEntitiesQueue: Entity[] = [];
 
   create(settings: Settings) {
     this.maxClients = settings.maxClients;
@@ -110,14 +111,10 @@ export default class NetworkingHost extends Networking<Settings> {
     return promise;
   }
 
-  createNetworkedPrefab(name: string): Entity {
-    const prefab = this.getPrefab(name);
-    const entity = this.instantiatePrefab(prefab);
+  createNetworkedPrefab(type: string): Entity {
+    const entity = this.instantiateAndRegisterPrefab(type);
     this.wrapRpcFunctions(entity);
-    this.sendAll({
-      type: 'entityCreate',
-      data: this.serializeEntity(entity),
-    });
+    this.createdEntitiesQueue.push(entity);
     return entity;
   }
 
@@ -231,6 +228,15 @@ export default class NetworkingHost extends Networking<Settings> {
         player.inputter.keysPressed = new Set();
       }
     }
+
+    for (let entity of this.createdEntitiesQueue) {
+      this.sendAll({
+        type: 'entityCreate',
+        data: this.serializeEntity(entity),
+      });
+    }
+
+    this.createdEntitiesQueue = [];
   }
 
   private onClientKeyDown(player: NetworkingPlayer, keyCode: number) {

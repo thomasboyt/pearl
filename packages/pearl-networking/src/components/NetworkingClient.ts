@@ -117,8 +117,7 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
   }
 
   private onEntityCreate(snapshot: EntitySnapshot) {
-    const prefab = this.getPrefab(snapshot.type);
-    this.instantiatePrefab(prefab, snapshot.id);
+    this.instantiateAndRegisterPrefab(snapshot.type, snapshot.id);
     this.deserializeEntity(snapshot);
   }
 

@@ -18,7 +18,16 @@ export default abstract class Networking<
     this.prefabs = opts.prefabs;
   }
 
-  protected getPrefab(prefabName: string): NetworkedPrefab {
+  protected instantiateAndRegisterPrefab(
+    prefabName: string,
+    id?: string
+  ): Entity {
+    const entity = this.createEntity(prefabName);
+    this.registerEntity(entity, id);
+    return entity;
+  }
+
+  private getPrefab(prefabName: string): NetworkedPrefab {
     const prefab = this.prefabs[prefabName];
 
     if (!prefab) {
@@ -28,7 +37,9 @@ export default abstract class Networking<
     return prefab;
   }
 
-  protected instantiatePrefab(prefab: NetworkedPrefab, id?: string): Entity {
+  private createEntity(prefabName: string): Entity {
+    const prefab = this.getPrefab(prefabName);
+
     const components = prefab.createComponents(this.pearl);
 
     const entity = new Entity({
@@ -40,17 +51,21 @@ export default abstract class Networking<
         new NetworkedEntity({
           networking: this,
           type: prefab.type,
-          id,
         }),
       ],
     });
 
     this.pearl.entities.add(entity);
 
-    const networked = entity.getComponent(NetworkedEntity);
-    this.networkedEntities.set(networked.id, entity);
-
     return entity;
+  }
+
+  private registerEntity(entity: Entity, id?: string) {
+    const networked = entity.getComponent(NetworkedEntity);
+    if (id) {
+      networked.id = id;
+    }
+    this.networkedEntities.set(networked.id, entity);
   }
 
   abstract destroyNetworkedEntity(entity: Entity): void;
