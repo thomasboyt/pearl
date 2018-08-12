@@ -45,11 +45,27 @@ export interface TooManyPlayersMessage extends BaseMessage {
   type: 'tooManyPlayers';
 }
 
+export interface EntityCreateMessage extends BaseMessage {
+  type: 'entityCreate';
+  data: EntitySnapshot;
+}
+
+export interface EntityDestroyData {
+  id: string;
+}
+
+export interface EntityDestroyMessage extends BaseMessage {
+  type: 'entityDestroy';
+  data: EntityDestroyData;
+}
+
 export type ServerMessage =
   | RpcMessage
   | SnapshotMessage
   | IdentityMessage
-  | TooManyPlayersMessage;
+  | TooManyPlayersMessage
+  | EntityCreateMessage
+  | EntityDestroyMessage;
 
 export interface InputKeyMessageData {
   keyCode: number;

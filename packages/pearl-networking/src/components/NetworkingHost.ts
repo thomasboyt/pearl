@@ -56,7 +56,7 @@ interface Settings extends NetworkingSettings {
 }
 
 export default class NetworkingHost extends Networking<Settings> {
-  isHost = true;
+  isHost: true = true;
   connectionState: 'connecting' | 'open' | 'closed' = 'connecting';
   onPlayerAdded = new Delegate<OnPlayerAddedMsg>();
   onPlayerRemoved = new Delegate<OnPlayerAddedMsg>();
@@ -114,7 +114,19 @@ export default class NetworkingHost extends Networking<Settings> {
     const prefab = this.getPrefab(name);
     const entity = this.instantiatePrefab(prefab);
     this.wrapRpcFunctions(entity);
+    this.sendAll({
+      type: 'entityCreate',
+      data: this.serializeEntity(entity),
+    });
     return entity;
+  }
+
+  destroyNetworkedEntity(entity: Entity) {
+    this.deregisterNetworkedEntity(entity);
+    this.sendAll({
+      type: 'entityDestroy',
+      data: { id: entity.getComponent(NetworkedEntity).id },
+    });
   }
 
   addLocalPlayer() {
@@ -250,27 +262,29 @@ export default class NetworkingHost extends Networking<Settings> {
     }
   }
 
+  private serializeEntity(entity: Entity): EntitySnapshot {
+    const networkedEntity = entity.getComponent(NetworkedEntity);
+
+    let parentId;
+    if (entity.parent) {
+      parentId = entity.parent.getComponent(NetworkedEntity).id;
+    }
+
+    return {
+      id: networkedEntity.id,
+      type: networkedEntity.type,
+      state: networkedEntity.hostSerialize(),
+      parentId,
+    };
+  }
+
   private serializeSnapshot(): SnapshotMessageData {
     this.snapshotClock += 1;
 
     const networkedEntities = [...this.networkedEntities.values()];
 
-    const serializedEntities: EntitySnapshot[] = networkedEntities.map(
-      (entity) => {
-        const networkedEntity = entity.getComponent(NetworkedEntity);
-
-        let parentId;
-        if (entity.parent) {
-          parentId = entity.parent.getComponent(NetworkedEntity).id;
-        }
-
-        return {
-          id: networkedEntity.id,
-          type: networkedEntity.type,
-          state: networkedEntity.hostSerialize(),
-          parentId,
-        };
-      }
+    const serializedEntities = networkedEntities.map((entity) =>
+      this.serializeEntity(entity)
     );
 
     return {

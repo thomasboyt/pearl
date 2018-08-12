@@ -7,6 +7,8 @@ import {
   RpcMessageData,
   ServerMessage,
   ClientMessage,
+  EntitySnapshot,
+  EntityDestroyData,
 } from '../messages';
 
 // TODO: replace this with something better?
@@ -22,7 +24,7 @@ interface ConnectionOptions {
 type ConnectionState = 'connecting' | 'connected' | 'error' | 'closed';
 
 export default class NetworkingClient extends Networking<NetworkingSettings> {
-  isHost = false;
+  isHost: false = false;
   connectionState: ConnectionState = 'connecting';
   errorReason?: string;
 
@@ -63,6 +65,10 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
       this.errorReason = 'Room at max capacity';
     } else if (msg.type === 'rpc') {
       this.handleRpc(msg.data);
+    } else if (msg.type === 'entityCreate') {
+      this.onEntityCreate(msg.data);
+    } else if (msg.type === 'entityDestroy') {
+      this.onEntityDestroy(msg.data);
     }
     // else if (msg.type === 'ping') {
     // this.sendToHost({
@@ -108,9 +114,32 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
     this.connection.send(JSON.stringify(msg));
   }
 
-  private createNetworkedPrefab(name: string, id: string): Entity {
-    const prefab = this.getPrefab(name);
-    return this.instantiatePrefab(prefab, id);
+  private onEntityCreate(snapshot: EntitySnapshot) {
+    const prefab = this.getPrefab(snapshot.type);
+    this.instantiatePrefab(prefab, snapshot.id);
+    this.deserializeEntity(snapshot);
+  }
+
+  private onEntityDestroy({ id }: EntityDestroyData) {
+    this.pearl.entities.destroy(this.networkedEntities.get(id)!);
+  }
+
+  destroyNetworkedEntity(entity: Entity) {
+    this.deregisterNetworkedEntity(entity);
+  }
+
+  private deserializeEntity(snapshot: EntitySnapshot) {
+    const entity = this.networkedEntities.get(snapshot.id)!;
+
+    entity
+      .getComponent(NetworkedEntity)
+      .clientDeserialize(snapshot.state, this.networkedEntities);
+
+    if (snapshot.parentId) {
+      const parent = this.networkedEntities.get(snapshot.parentId)!;
+      // XXX: this is safe to do every frame since children is a set
+      parent.appendChild(entity);
+    }
   }
 
   private onSnapshot(snapshot: SnapshotMessageData) {
@@ -120,37 +149,8 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
     }
     this.snapshotClock = clock;
 
-    const unseenIds = new Set(this.networkedEntities.keys());
-
-    // first, find any prefabs that don't exist, and create them. this happens
-    // first so entities that are created on the same frame can still be linked
-    // together
-    const newEntities = snapshot.entities.filter(
-      (entity) => !this.networkedEntities.has(entity.id)
-    );
-
-    for (let snapshotEntity of newEntities) {
-      this.createNetworkedPrefab(snapshotEntity.type, snapshotEntity.id);
-    }
-
     for (let snapshotEntity of snapshot.entities) {
-      const entity = this.networkedEntities.get(snapshotEntity.id)!;
-
-      entity
-        .getComponent(NetworkedEntity)
-        .clientDeserialize(snapshotEntity.state, this.networkedEntities);
-
-      if (snapshotEntity.parentId) {
-        const parent = this.networkedEntities.get(snapshotEntity.parentId)!;
-        // XXX: this is safe to do every frame since children is a set
-        parent.appendChild(entity);
-      }
-
-      unseenIds.delete(snapshotEntity.id);
-    }
-
-    for (let unseenId of unseenIds) {
-      this.pearl.entities.destroy(this.networkedEntities.get(unseenId)!);
+      this.deserializeEntity(snapshotEntity);
     }
   }
 

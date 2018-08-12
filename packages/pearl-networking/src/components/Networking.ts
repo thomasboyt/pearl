@@ -53,7 +53,9 @@ export default abstract class Networking<
     return entity;
   }
 
-  deregisterNetworkedEntity(entity: Entity) {
+  abstract destroyNetworkedEntity(entity: Entity): void;
+
+  protected deregisterNetworkedEntity(entity: Entity) {
     const networked = entity.getComponent(NetworkedEntity);
     this.networkedEntities.delete(networked.id);
   }

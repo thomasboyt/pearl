@@ -58,8 +58,6 @@ export default class NetworkedEntity extends Component<Opts> {
   }
 
   onDestroy() {
-    if (this.networking) {
-      this.networking.deregisterNetworkedEntity(this.entity);
-    }
+    this.networking.destroyNetworkedEntity(this.entity);
   }
 }
