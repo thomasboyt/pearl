@@ -65,6 +65,8 @@ describe('NetworkingHost', () => {
       },
     };
 
+    host.pearl.ticker.step(0);
+
     expect(mockSendAll.mock.calls[0][0]).toEqual(expectedMsg);
   });
 
@@ -73,6 +75,8 @@ describe('NetworkingHost', () => {
     const mockSendAll = (host['sendAll'] = jest.fn());
 
     const prefab = host.createNetworkedPrefab('examplePrefab');
+    host.pearl.ticker.step(0);
+
     host.pearl.entities.destroy(prefab);
 
     const expectedMsg: EntityDestroyMessage = {
@@ -82,6 +86,6 @@ describe('NetworkingHost', () => {
       },
     };
 
-    expect(mockSendAll.mock.calls[1][0]).toEqual(expectedMsg);
+    expect(mockSendAll.mock.calls[2][0]).toEqual(expectedMsg);
   });
 });
