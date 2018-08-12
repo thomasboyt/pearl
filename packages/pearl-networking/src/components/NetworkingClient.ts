@@ -69,6 +69,8 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
       this.onEntityCreate(msg.data);
     } else if (msg.type === 'entityDestroy') {
       this.onEntityDestroy(msg.data);
+    } else if (msg.type === 'initialSnapshot') {
+      this.onInitialSnapshot(msg.data);
     }
     // else if (msg.type === 'ping') {
     // this.sendToHost({
@@ -148,6 +150,18 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
       return;
     }
     this.snapshotClock = clock;
+
+    for (let snapshotEntity of snapshot.entities) {
+      this.deserializeEntity(snapshotEntity);
+    }
+  }
+
+  private onInitialSnapshot(snapshot: SnapshotMessageData) {
+    this.snapshotClock = snapshot.clock;
+
+    for (let snapshotEntity of snapshot.entities) {
+      this.instantiateAndRegisterPrefab(snapshotEntity.type, snapshotEntity.id);
+    }
 
     for (let snapshotEntity of snapshot.entities) {
       this.deserializeEntity(snapshotEntity);

@@ -159,6 +159,11 @@ export default class NetworkingHost extends Networking<Settings> {
         id: player.id,
       },
     });
+
+    this.sendToPeer(peerId, {
+      type: 'initialSnapshot',
+      data: this.serializeSnapshot(),
+    });
   }
 
   private onPeerMessage(peerId: string, data: string) {

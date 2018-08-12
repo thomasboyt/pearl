@@ -59,13 +59,19 @@ export interface EntityDestroyMessage extends BaseMessage {
   data: EntityDestroyData;
 }
 
+export interface InitialSnapshotMessage extends BaseMessage {
+  type: 'initialSnapshot';
+  data: SnapshotMessageData;
+}
+
 export type ServerMessage =
   | RpcMessage
   | SnapshotMessage
   | IdentityMessage
   | TooManyPlayersMessage
   | EntityCreateMessage
-  | EntityDestroyMessage;
+  | EntityDestroyMessage
+  | InitialSnapshotMessage;
 
 export interface InputKeyMessageData {
   keyCode: number;
