@@ -8,6 +8,7 @@ import { Position, CollisionResponse } from './utils';
 export interface ColliderOptions {
   isTrigger?: boolean;
   isEnabled?: boolean;
+  ignoreCollisionTags?: string[];
 }
 
 export default abstract class Collider<
@@ -23,6 +24,12 @@ export default abstract class Collider<
    * Indicates whether this collider is enabled, meaning it's not ignored.
    */
   isEnabled = true;
+
+  /**
+   * A list of tags to ignore when checking collisions. Use to prevent e.g.
+   * enemies from colliding with each other.
+   */
+  ignoreCollisionTags: string[] = [];
 
   protected applyColliderOptions(opts: ColliderOptions) {
     if (opts.isTrigger !== undefined) {
@@ -52,10 +59,23 @@ export default abstract class Collider<
       return;
     }
 
+    if (this.shouldIgnoreEntity(other.entity)) {
+      return;
+    }
+
     return this.testShape(
       other.getCollisionShape(),
       other.getComponent(Physical)
     );
+  }
+
+  protected shouldIgnoreEntity(entity: Entity): boolean {
+    for (let tag of this.ignoreCollisionTags) {
+      if (entity.hasTag(tag)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
