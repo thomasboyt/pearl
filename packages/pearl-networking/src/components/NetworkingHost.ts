@@ -144,6 +144,11 @@ export default class NetworkingHost extends Networking<Settings> {
       return;
     }
 
+    this.sendToPeer(peerId, {
+      type: 'initialSnapshot',
+      data: this.serializeSnapshot(),
+    });
+
     const player = this.addPlayer({
       inputter: new NetworkedInputter(),
     });
@@ -155,11 +160,6 @@ export default class NetworkingHost extends Networking<Settings> {
       data: {
         id: player.id,
       },
-    });
-
-    this.sendToPeer(peerId, {
-      type: 'initialSnapshot',
-      data: this.serializeSnapshot(),
     });
   }
 
