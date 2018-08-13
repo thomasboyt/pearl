@@ -1,10 +1,18 @@
 import Component from '../../Component';
+import Entity from '../../Entity';
 import Physical from '../Physical';
 import ShapeCollider from './ShapeCollider';
 import CollisionShape from './shapes/CollisionShape';
 import { Position, CollisionResponse } from './utils';
 
-export default abstract class Collider extends Component<any> {
+export interface ColliderOptions {
+  isTrigger?: boolean;
+  isEnabled?: boolean;
+}
+
+export default abstract class Collider<
+  T extends ColliderOptions = any
+> extends Component<T> {
   /**
    * Indicates whether this collider should be solid (objects should not go
    * through it) or a trigger (objects can go through it)
@@ -15,6 +23,18 @@ export default abstract class Collider extends Component<any> {
    * Indicates whether this collider is enabled, meaning it's not ignored.
    */
   isEnabled = true;
+
+  protected applyColliderOptions(opts: ColliderOptions) {
+    if (opts.isTrigger !== undefined) {
+      this.isTrigger = opts.isTrigger;
+    }
+    if (opts.isEnabled !== undefined) {
+      this.isEnabled = opts.isEnabled;
+    }
+    if (opts.ignoreCollisionTags !== undefined) {
+      this.ignoreCollisionTags = opts.ignoreCollisionTags;
+    }
+  }
 
   /**
    * Returns true if this object is colliding with the passed collider

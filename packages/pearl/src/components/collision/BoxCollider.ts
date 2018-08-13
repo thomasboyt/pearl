@@ -4,8 +4,9 @@ import ShapeCollider from './ShapeCollider';
 import CollisionShape from './shapes/CollisionShape';
 import PolygonShape from './shapes/PolygonShape';
 import { Position, CollisionResponse } from './utils';
+import { ColliderOptions } from './Collider';
 
-interface BoxColliderSettings {
+interface BoxColliderSettings extends ColliderOptions {
   width: number;
   height: number;
 }
@@ -32,6 +33,8 @@ export default class BoxCollider extends ShapeCollider {
       width: settings.width,
       height: settings.height,
     });
+
+    this.applyColliderOptions(settings);
 
     this.entity.registerCollider(this);
   }

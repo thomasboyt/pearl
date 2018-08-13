@@ -1,4 +1,4 @@
-import Collider from './Collider';
+import Collider, { ColliderOptions } from './Collider';
 import CollisionShape from './shapes/CollisionShape';
 import { Position, CollisionResponse, Bounds } from './utils';
 import Physical from '../Physical';
@@ -11,7 +11,9 @@ import Physical from '../Physical';
  * directly. It's only concrete so that `instanceof ShapeCollider` can be used
  * to check whether a given collider is a ShapeCollider.
  */
-export default class ShapeCollider extends Collider {
+export default class ShapeCollider<
+  T extends ColliderOptions = any
+> extends Collider<T> {
   getCollisionShape(): CollisionShape {
     throw new Error('not implemented');
   }

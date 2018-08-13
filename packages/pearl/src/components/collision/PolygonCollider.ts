@@ -4,8 +4,9 @@ import ShapeCollider from './ShapeCollider';
 import CollisionShape from './shapes/CollisionShape';
 import PolygonShape from './shapes/PolygonShape';
 import { Position, CollisionResponse } from './utils';
+import { ColliderOptions } from './Collider';
 
-interface PolygonColliderSettings {
+interface PolygonColliderSettings extends ColliderOptions {
   points: [number, number][];
 }
 
@@ -19,6 +20,8 @@ export default class PolygonCollider extends ShapeCollider {
     this.shape = new PolygonShape({
       points: settings.points,
     });
+
+    this.applyColliderOptions(settings);
 
     this.entity.registerCollider(this);
   }
