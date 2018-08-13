@@ -212,12 +212,20 @@ export default class Entity {
   }
 
   update(dt: number) {
+    if (this.state !== 'initialized') {
+      return;
+    }
+
     for (let component of this.components) {
       component.update(dt);
     }
   }
 
   lateUpdate() {
+    if (this.state !== 'initialized') {
+      return;
+    }
+
     for (let component of this.components) {
       component.lateUpdate();
     }
