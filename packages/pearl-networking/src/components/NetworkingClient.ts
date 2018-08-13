@@ -132,6 +132,13 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
   private deserializeEntity(snapshot: EntitySnapshot) {
     const entity = this.networkedEntities.get(snapshot.id)!;
 
+    if (!entity) {
+      console.warn(
+        `snapshot contained nonexistent entity: ${snapshot.type}/${snapshot.id}`
+      );
+      return;
+    }
+
     entity
       .getComponent(NetworkedEntity)
       .clientDeserialize(snapshot.state, this.networkedEntities);
