@@ -2,17 +2,19 @@ import { Component, Entity } from 'pearl';
 import NetworkedEntity from './NetworkedEntity';
 import { NetworkedPrefab } from '../types';
 
-interface Opts {
+export interface NetworkingSettings {
   prefabs: { [_: string]: NetworkedPrefab };
 }
 
-export default abstract class Networking extends Component<Opts> {
+export default abstract class Networking<
+  T extends NetworkingSettings = any
+> extends Component<T> {
   prefabs!: { [_: string]: NetworkedPrefab };
   networkedEntities = new Map<string, Entity>();
   localPlayerId?: number;
   abstract isHost: boolean;
 
-  create(opts: Opts) {
+  protected registerSettings(opts: NetworkingSettings) {
     this.prefabs = opts.prefabs;
   }
 

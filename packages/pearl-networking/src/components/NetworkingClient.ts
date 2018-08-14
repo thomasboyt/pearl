@@ -1,5 +1,5 @@
 import { Entity } from 'pearl';
-import Networking from './Networking';
+import Networking, { NetworkingSettings } from './Networking';
 import {
   SnapshotMessage,
   RpcMessage,
@@ -21,7 +21,7 @@ interface ConnectionOptions {
 
 type ConnectionState = 'connecting' | 'connected' | 'error' | 'closed';
 
-export default class NetworkingClient extends Networking {
+export default class NetworkingClient extends Networking<NetworkingSettings> {
   isHost = false;
   connectionState: ConnectionState = 'connecting';
   errorReason?: string;
@@ -29,6 +29,10 @@ export default class NetworkingClient extends Networking {
   private connection!: ClientSession;
   private snapshotClock = 0;
   private inputter?: PlayerInputter;
+
+  create(settings: NetworkingSettings) {
+    this.registerSettings(settings);
+  }
 
   connect(connectionOptions: ConnectionOptions) {
     const connection = new ClientSession(connectionOptions.groovejetUrl);

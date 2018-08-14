@@ -1,6 +1,6 @@
 import { Entity } from 'pearl';
 
-import Networking from './Networking';
+import Networking, { NetworkingSettings } from './Networking';
 import {
   EntitySnapshot,
   SnapshotMessageData,
@@ -13,9 +13,6 @@ import Delegate from '../util/Delegate';
 import { HostSession } from 'pearl-multiplayer-socket';
 
 let playerIdCounter = 0;
-
-// TODO: HOLY SHIT MOVE THIS AAA
-const MAX_CLIENTS = 2;
 
 interface OnPlayerAddedMsg {
   networkingPlayer: NetworkingPlayer;
@@ -54,16 +51,26 @@ interface AddPlayerOpts {
   isLocal?: boolean;
 }
 
-export default class NetworkingHost extends Networking {
+interface Settings extends NetworkingSettings {
+  maxClients: number;
+}
+
+export default class NetworkingHost extends Networking<Settings> {
   isHost = true;
   connectionState: 'connecting' | 'open' | 'closed' = 'connecting';
   onPlayerAdded = new Delegate<OnPlayerAddedMsg>();
   onPlayerRemoved = new Delegate<OnPlayerAddedMsg>();
   players = new Map<number, NetworkingPlayer>();
+  maxClients: number;
 
   private connection!: HostSession;
   private snapshotClock = 0;
   private peerIdToPlayerId = new Map<string, number>();
+
+  create(settings: Settings) {
+    this.maxClients = settings.maxClients;
+    this.registerSettings(settings);
+  }
 
   // XXX: might be good in the future to have this use coroutines, once
   // coroutines can yield other coroutines. for now, should be okay since this
@@ -120,7 +127,7 @@ export default class NetworkingHost extends Networking {
   }
 
   private onPeerConnected(peerId: string) {
-    if (this.players.size === MAX_CLIENTS) {
+    if (this.players.size === this.maxClients) {
       this.sendToPeer(peerId, {
         type: 'tooManyPlayers',
       });
