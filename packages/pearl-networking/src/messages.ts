@@ -33,7 +33,7 @@ export interface SnapshotMessage extends BaseMessage {
 }
 
 export interface IdentityMessageData {
-  id: number;
+  id: string;
 }
 
 export interface IdentityMessage extends BaseMessage {

@@ -12,7 +12,7 @@ import NetworkedEntity from './NetworkedEntity';
 import Delegate from '../util/Delegate';
 import { HostSession } from 'pearl-multiplayer-socket';
 
-let playerIdCounter = 0;
+const LOCAL_PEER_ID = '__LOCAL__';
 
 interface OnPlayerAddedMsg {
   networkingPlayer: NetworkingPlayer;
@@ -37,16 +37,17 @@ class NetworkedInputter implements Inputter {
 }
 
 export class NetworkingPlayer {
-  id: number;
+  id: string;
   inputter: Inputter;
 
-  constructor(id: number, inputter: Inputter) {
+  constructor(id: string, inputter: Inputter) {
     this.id = id;
     this.inputter = inputter;
   }
 }
 
 interface AddPlayerOpts {
+  peerId: string;
   inputter: Inputter;
   isLocal?: boolean;
 }
@@ -60,12 +61,11 @@ export default class NetworkingHost extends Networking<Settings> {
   connectionState: 'connecting' | 'open' | 'closed' = 'connecting';
   onPlayerAdded = new Delegate<OnPlayerAddedMsg>();
   onPlayerRemoved = new Delegate<OnPlayerAddedMsg>();
-  players = new Map<number, NetworkingPlayer>();
+  players = new Map<string, NetworkingPlayer>();
   maxClients: number;
 
   private connection!: HostSession;
   private snapshotClock = 0;
-  private peerIdToPlayerId = new Map<string, number>();
   private createdEntitiesQueue: Entity[] = [];
 
   create(settings: Settings) {
@@ -128,6 +128,7 @@ export default class NetworkingHost extends Networking<Settings> {
 
   addLocalPlayer() {
     const player = this.addPlayer({
+      peerId: LOCAL_PEER_ID,
       inputter: this.pearl.inputter,
       isLocal: true,
     });
@@ -150,10 +151,9 @@ export default class NetworkingHost extends Networking<Settings> {
     });
 
     const player = this.addPlayer({
+      peerId,
       inputter: new NetworkedInputter(),
     });
-
-    this.peerIdToPlayerId.set(peerId, player.id);
 
     this.sendToPeer(peerId, {
       type: 'identity',
@@ -164,7 +164,7 @@ export default class NetworkingHost extends Networking<Settings> {
   }
 
   private onPeerMessage(peerId: string, data: string) {
-    const player = this.players.get(this.peerIdToPlayerId.get(peerId)!)!;
+    const player = this.players.get(peerId)!;
     const msg = JSON.parse(data) as ClientMessage;
 
     if (msg.type === 'keyDown') {
@@ -179,23 +179,19 @@ export default class NetworkingHost extends Networking<Settings> {
   }
 
   private onPeerDisconnect(peerId: string) {
-    if (!this.peerIdToPlayerId.has(peerId)) {
+    if (!this.players.has(peerId)) {
       // this can happen if the socket is closed before the player is added
       return;
     }
 
-    const player = this.players.get(this.peerIdToPlayerId.get(peerId)!)!;
-    this.peerIdToPlayerId.delete(peerId);
-    this.players.delete(player.id);
+    const player = this.players.get(peerId)!;
+    this.players.delete(peerId);
     this.removePlayer(player);
   }
 
   private addPlayer(opts: AddPlayerOpts): NetworkingPlayer {
-    const playerId = playerIdCounter;
-    playerIdCounter += 1;
-
-    const player = new NetworkingPlayer(playerId, opts.inputter);
-    this.players.set(playerId, player);
+    const player = new NetworkingPlayer(opts.peerId, opts.inputter);
+    this.players.set(player.id, player);
 
     if (opts.isLocal) {
       this.setIdentity(player.id);
@@ -257,6 +253,10 @@ export default class NetworkingHost extends Networking<Settings> {
     msg: ServerMessage,
     channel: 'reliable' | 'unreliable' = 'reliable'
   ) {
+    if (peerId === LOCAL_PEER_ID) {
+      return;
+    }
+
     this.connection.sendPeer(peerId, JSON.stringify(msg), channel);
   }
 
@@ -264,10 +264,8 @@ export default class NetworkingHost extends Networking<Settings> {
     msg: ServerMessage,
     channel: 'reliable' | 'unreliable' = 'reliable'
   ): void {
-    const serialized = JSON.stringify(msg);
-
-    for (let peerId of this.peerIdToPlayerId.keys()) {
-      this.connection.sendPeer(peerId, serialized, channel);
+    for (let peerId of this.players.keys()) {
+      this.sendToPeer(peerId, msg, channel);
     }
   }
 

@@ -11,7 +11,7 @@ export default abstract class Networking<
 > extends Component<T> {
   prefabs!: { [_: string]: NetworkedPrefab };
   networkedEntities = new Map<string, Entity>();
-  localPlayerId?: number;
+  localPlayerId?: string;
   abstract isHost: boolean;
 
   protected registerSettings(opts: NetworkingSettings) {
@@ -75,7 +75,7 @@ export default abstract class Networking<
     this.networkedEntities.delete(networked.id);
   }
 
-  protected setIdentity(id: number) {
+  protected setIdentity(id: string) {
     this.localPlayerId = id;
   }
 }
