@@ -47,11 +47,11 @@ export default abstract class Networking<
       tags: [prefab.type, ...(prefab.tags || [])],
       zIndex: prefab.zIndex || 0,
       components: [
-        ...components,
         new NetworkedEntity({
           networking: this,
           type: prefab.type,
         }),
+        ...components,
       ],
     });
 
