@@ -33,7 +33,7 @@ export interface SnapshotMessage extends BaseMessage {
 }
 
 export interface IdentityMessageData {
-  id: number;
+  id: string;
 }
 
 export interface IdentityMessage extends BaseMessage {
@@ -45,11 +45,33 @@ export interface TooManyPlayersMessage extends BaseMessage {
   type: 'tooManyPlayers';
 }
 
+export interface EntityCreateMessage extends BaseMessage {
+  type: 'entityCreate';
+  data: EntitySnapshot;
+}
+
+export interface EntityDestroyData {
+  id: string;
+}
+
+export interface EntityDestroyMessage extends BaseMessage {
+  type: 'entityDestroy';
+  data: EntityDestroyData;
+}
+
+export interface InitialSnapshotMessage extends BaseMessage {
+  type: 'initialSnapshot';
+  data: SnapshotMessageData;
+}
+
 export type ServerMessage =
   | RpcMessage
   | SnapshotMessage
   | IdentityMessage
-  | TooManyPlayersMessage;
+  | TooManyPlayersMessage
+  | EntityCreateMessage
+  | EntityDestroyMessage
+  | InitialSnapshotMessage;
 
 export interface InputKeyMessageData {
   keyCode: number;

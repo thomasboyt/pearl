@@ -79,3 +79,5 @@ export {
   ITileMap,
   TileCollisionType,
 } from './components/tilemap/TileMapCollider';
+
+export { default as createTestPearl } from './util/createTestPearl';

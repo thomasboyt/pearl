@@ -82,19 +82,6 @@ export default class Entity {
   }
 
   /**
-   * Called before the first frame for new entities
-   *
-   * @internal
-   */
-  initialize() {
-    for (let component of this.components) {
-      component.init(component.initialSettings);
-    }
-
-    this._state = 'initialized';
-  }
-
-  /**
    * Check whether this component has the specified tag.
    */
   hasTag(tag: string): boolean {
@@ -187,7 +174,16 @@ export default class Entity {
    * Internal hooks
    */
 
+  /**
+   * Called during this.pearl.add(entity).
+   *
+   * @internal
+   */
   create() {
+    if (this.state !== 'new') {
+      throw new Error(`cannot create component in wrong state: ${this.state}`);
+    }
+
     this._state = 'created';
 
     // game is set at this point
@@ -196,13 +192,40 @@ export default class Entity {
     }
   }
 
+  /**
+   * Called before the first frame for new entities
+   *
+   * @internal
+   */
+  initialize() {
+    if (this.state !== 'created') {
+      throw new Error(
+        `cannot initialize component in wrong state: ${this.state}`
+      );
+    }
+
+    for (let component of this.components) {
+      component.init(component.initialSettings);
+    }
+
+    this._state = 'initialized';
+  }
+
   update(dt: number) {
+    if (this.state !== 'initialized') {
+      return;
+    }
+
     for (let component of this.components) {
       component.update(dt);
     }
   }
 
   lateUpdate() {
+    if (this.state !== 'initialized') {
+      return;
+    }
+
     for (let component of this.components) {
       component.lateUpdate();
     }
@@ -231,6 +254,11 @@ export default class Entity {
   }
 
   onDestroy() {
+    if (this._state === 'destroyed') {
+      console.warn(`attempted to re-destroy entity ${this.name}`);
+      return;
+    }
+
     for (let component of this.components) {
       component.onDestroy();
     }

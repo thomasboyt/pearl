@@ -6,7 +6,6 @@ import { NetworkedComponent } from '../types';
 interface Opts {
   type: string;
   networking: Networking;
-  id?: string;
 }
 
 type Snapshot = { [key: string]: any };
@@ -20,10 +19,6 @@ export default class NetworkedEntity extends Component<Opts> {
   create(opts: Opts) {
     this.networking = opts.networking;
     this.type = opts.type;
-
-    if (opts.id !== undefined) {
-      this.id = opts.id;
-    }
   }
 
   get isHost() {
@@ -58,8 +53,6 @@ export default class NetworkedEntity extends Component<Opts> {
   }
 
   onDestroy() {
-    if (this.networking) {
-      this.networking.deregisterNetworkedEntity(this.entity);
-    }
+    this.networking.destroyNetworkedEntity(this.entity);
   }
 }
