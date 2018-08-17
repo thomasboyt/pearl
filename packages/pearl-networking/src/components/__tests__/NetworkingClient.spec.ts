@@ -1,22 +1,15 @@
 import { Entity, Component, createTestPearl, PearlInstance } from 'pearl';
 jest.mock('pearl/dist/AudioManager');
+jest.mock('pearl-multiplayer-socket');
 
 import NetworkingClient from '../NetworkingClient';
 import { NetworkedComponent } from '../../types';
-import { EntityCreateMessage, EntityDestroyMessage } from '../../messages';
+import {
+  EntityCreateMessage,
+  EntityDestroyMessage,
+  InitialSnapshotMessage,
+} from '../../messages';
 import NetworkedEntity from '../NetworkedEntity';
-
-jest.mock('pearl-multiplayer-socket', () => {
-  class ClientSession {
-    connectRoom() {
-      return Promise.resolve();
-    }
-  }
-
-  return {
-    ClientSession,
-  };
-});
 
 interface TestComponentSnapshot {
   a: number;
@@ -110,6 +103,7 @@ describe('NetworkingClient', () => {
 
   it('destroys entity when entityDestroy message is received', async () => {
     const client = await setup();
+    await client.connect({ groovejetUrl: '/', roomCode: 'roomCode' });
     await createTestEntity(client);
 
     const msg: EntityDestroyMessage = {
@@ -123,5 +117,35 @@ describe('NetworkingClient', () => {
 
     const entity = getTestEntity(client.pearl);
     expect(entity).toBeUndefined();
+  });
+
+  it('creates entities from the initial snapshot when received', async () => {
+    const client = await setup();
+    await client.connect({ groovejetUrl: '/', roomCode: 'roomCode' });
+
+    const msg: InitialSnapshotMessage = {
+      type: 'initialSnapshot',
+      data: {
+        clock: 1,
+        entities: [
+          {
+            id: '1234',
+            parentId: undefined,
+            state: {
+              TestComponent: {
+                a: 1,
+              },
+            },
+            type: 'examplePrefab',
+          },
+        ],
+      },
+    };
+
+    client['connection'].onMessage(JSON.stringify(msg));
+
+    const entity = getTestEntity(client.pearl);
+    expect(entity).toBeDefined();
+    expect(entity!.getComponent(TestComponent).a).toBe(1);
   });
 });
