@@ -189,6 +189,7 @@ export default class Entity {
     // game is set at this point
     for (let component of this.components) {
       component.create(component.initialSettings);
+      delete component.initialSettings;
     }
   }
 
@@ -205,7 +206,7 @@ export default class Entity {
     }
 
     for (let component of this.components) {
-      component.init(component.initialSettings);
+      component.init();
     }
 
     this._state = 'initialized';

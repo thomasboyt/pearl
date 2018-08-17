@@ -46,7 +46,7 @@ abstract class Component<Settings> {
   /**
    * Hook called when this object is added to the world.
    */
-  init(settings: Settings) {
+  init() {
     // no-op
   }
 
