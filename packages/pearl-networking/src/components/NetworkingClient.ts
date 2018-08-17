@@ -122,6 +122,10 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
   }
 
   private onEntityDestroy({ id }: EntityDestroyData) {
+    if (!this.networkedEntities.has(id)) {
+      return;
+    }
+
     this.pearl.entities.destroy(this.networkedEntities.get(id)!);
   }
 
