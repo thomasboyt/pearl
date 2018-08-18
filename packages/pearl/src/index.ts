@@ -1,4 +1,4 @@
-export { Coordinates, Vector2 } from './types';
+export { Vector2 } from './types';
 export { MouseButton } from './Inputter/ButtonListener';
 export { default as Keys } from './util/keyCodes';
 

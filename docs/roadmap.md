@@ -4,8 +4,6 @@
 
 * Simplify component creation using one of the strategies detailed below (see below)
 * Tiled platformer example! Probably will port over Blorp, probably with shinier new sprites from a free asset pack.
-* Remove deprecated stuff
-  * `Coordinates` alias
 
 ### Beyond that, probably
 
