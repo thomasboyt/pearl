@@ -1,6 +1,6 @@
 import Sprite, { RGB } from '../util/Sprite';
 import Physical from './Physical';
-import Component from '../Component';
+import Component, { requireComponents } from '../Component';
 
 interface Settings {
   sprite?: Sprite;
@@ -8,6 +8,7 @@ interface Settings {
   scaleY?: number;
 }
 
+@requireComponents(Physical)
 export default class SpriteRenderer extends Component<Settings> {
   sprite?: Sprite;
 

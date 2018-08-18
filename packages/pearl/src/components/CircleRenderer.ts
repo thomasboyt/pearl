@@ -1,4 +1,4 @@
-import Component from '../Component';
+import Component, { requireComponents } from '../Component';
 import Physical from './Physical';
 import CircleCollider from './collision/CircleCollider';
 
@@ -7,6 +7,7 @@ export interface Options {
   strokeStyle?: string;
 }
 
+@requireComponents(Physical, CircleCollider)
 export default class CircleRenderer extends Component<Options> {
   fillStyle: string | null = null;
   strokeStyle: string | null = null;

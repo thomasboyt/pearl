@@ -1,4 +1,4 @@
-import Component from '../Component';
+import Component, { requireComponents } from '../Component';
 import SpriteRenderer from './SpriteRenderer';
 
 import { ISpriteSheet } from '../util/SpriteSheet';
@@ -14,6 +14,7 @@ export interface Options {
   animations: AnimationConfigMap;
 }
 
+@requireComponents(SpriteRenderer)
 export default class AnimationManager extends Component<Options> {
   private _sheet: ISpriteSheet;
   private _animationConfig: AnimationConfigMap;

@@ -3,12 +3,28 @@ import PearlInstance from './PearlInstance';
 import { Runnable } from '@tboyt/coroutine-manager';
 import CollisionInformation from './components/collision/CollisionInformation';
 
+export interface ComponentType<T extends Component<any>> {
+  new (...args: any[]): T;
+  dependencies: Set<ComponentType<any>>;
+}
+
+export function requireComponents(...components: ComponentType<any>[]) {
+  return (target: ComponentType<any>) => {
+    for (let component of components) {
+      target.dependencies.add(component);
+    }
+    return target;
+  };
+}
+
 /**
  * A base class for components. The component's options interface should be
  * passed as a type argument when sublcassing, so that the options interface is
  * correctly type-checked when this component is instantiated.
  */
 abstract class Component<Settings> {
+  static dependencies = new Set<ComponentType<any>>();
+
   initialSettings?: Settings;
 
   /**

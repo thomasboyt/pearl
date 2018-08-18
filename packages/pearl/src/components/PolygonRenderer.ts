@@ -1,4 +1,4 @@
-import Component from '../Component';
+import Component, { requireComponents } from '../Component';
 import Physical from './Physical';
 
 import PolygonCollider from './collision/PolygonCollider';
@@ -9,6 +9,7 @@ export interface Options {
   strokeStyle?: string;
 }
 
+@requireComponents(Physical)
 export default class PolygonRenderer extends Component<Options> {
   fillStyle: string | null = null;
   strokeStyle: string | null = null;
@@ -18,19 +19,25 @@ export default class PolygonRenderer extends Component<Options> {
     this.strokeStyle = opts.strokeStyle || null;
   }
 
-  render(ctx: CanvasRenderingContext2D) {
-    const phys = this.getComponent(Physical);
-    const poly =
-      this.entity.maybeGetComponent(PolygonCollider) ||
-      this.entity.maybeGetComponent(BoxCollider);
-
-    if (!poly) {
+  init() {
+    if (!this.poly) {
       throw new Error(
         'PolygonRenderer cannot render without PolygonCollider or BoxCollider'
       );
     }
+  }
 
-    const points = poly.getCollisionShape().points;
+  get poly() {
+    return (
+      this.entity.maybeGetComponent(PolygonCollider) ||
+      this.entity.maybeGetComponent(BoxCollider)
+    );
+  }
+
+  render(ctx: CanvasRenderingContext2D) {
+    const phys = this.getComponent(Physical);
+
+    const points = this.poly!.getCollisionShape().points;
     ctx.translate(phys.center.x, phys.center.y);
     ctx.rotate(phys.angle);
 

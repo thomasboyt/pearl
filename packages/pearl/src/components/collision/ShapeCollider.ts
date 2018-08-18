@@ -2,6 +2,7 @@ import Collider, { ColliderOptions } from './Collider';
 import CollisionShape from './shapes/CollisionShape';
 import { Position, CollisionResponse, Bounds } from './utils';
 import Physical from '../Physical';
+import { requireComponents } from '../../Component';
 
 /**
  * A ShapeCollider is the base class for any collider that represents a
@@ -11,6 +12,7 @@ import Physical from '../Physical';
  * directly. It's only concrete so that `instanceof ShapeCollider` can be used
  * to check whether a given collider is a ShapeCollider.
  */
+@requireComponents(Physical)
 export default class ShapeCollider<
   T extends ColliderOptions = any
 > extends Collider<T> {

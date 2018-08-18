@@ -1,4 +1,4 @@
-import Component from '../Component';
+import Component, { requireComponents } from '../Component';
 import Physical from './Physical';
 import { Vector2 } from '../types';
 
@@ -7,6 +7,7 @@ import { CollisionResponse } from './collision/utils';
 import ShapeCollider from './collision/ShapeCollider';
 import CollisionInformation from './collision/CollisionInformation';
 
+@requireComponents(Physical, ShapeCollider)
 export default class KinematicBody extends Component<null> {
   moveAndCollide(vec: Vector2): CollisionInformation[] {
     const collisions = this._moveAndCollide(vec);
