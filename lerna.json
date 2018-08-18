@@ -2,15 +2,15 @@
   "packages": [
     "packages/*"
   ],
-  "ignoreChanges": [
-    "**/__fixtures__/**",
-    "**/__tests__/**",
-    "**/*.md"
-  ],
   "version": "0.0.11",
   "command": {
     "publish": {
-      "exact": true
+      "exact": true,
+      "ignoreChanges": [
+        "**/__fixtures__/**",
+        "**/__tests__/**",
+        "**/*.md"
+      ]
     },
     "bootstrap": {
       "hoist": true,
