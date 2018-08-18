@@ -1,12 +1,21 @@
 import { Vector2 } from '../types';
-import ButtonListener, { MouseButton } from './ButtonListener';
+import ButtonListener, { MouseButton, PearlKeyEvent } from './ButtonListener';
 import MouseMoveListener, { MouseListenerFn } from './MouseMoveListener';
 import TouchListener from './TouchListener';
+import Delegate from '../util/Delegate';
 
 export default class Inputter {
   private _buttonListener: ButtonListener = new ButtonListener();
   private _mouseMoveListener: MouseMoveListener = new MouseMoveListener();
   private _touchListener: TouchListener = new TouchListener();
+
+  get onKeyDown() {
+    return this._buttonListener.onKeyDown;
+  }
+
+  get onKeyUp() {
+    return this._buttonListener.onKeyUp;
+  }
 
   bind(canvas: HTMLCanvasElement) {
     this._buttonListener.bind(canvas);

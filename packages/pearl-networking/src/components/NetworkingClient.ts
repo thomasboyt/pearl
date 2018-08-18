@@ -1,4 +1,4 @@
-import { Entity } from 'pearl';
+import { Entity, PearlKeyEvent } from 'pearl';
 import Networking, { NetworkingSettings } from './Networking';
 import {
   SnapshotMessage,
@@ -11,8 +11,6 @@ import {
   EntityDestroyData,
 } from '../messages';
 
-// TODO: replace this with something better?
-import PlayerInputter from '../util/PlayerInputter';
 import NetworkedEntity from './NetworkedEntity';
 import { ClientSession } from 'pearl-multiplayer-socket';
 
@@ -30,7 +28,6 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
 
   private connection!: ClientSession;
   private snapshotClock = 0;
-  private inputter?: PlayerInputter;
 
   create(settings: NetworkingSettings) {
     this.registerSettings(settings);
@@ -82,34 +79,32 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
   private onOpen() {
     this.connectionState = 'connected';
 
-    this.inputter = new PlayerInputter({
-      onKeyDown: (keyCode) => {
-        this.sendToHost({
-          type: 'keyDown',
-          data: {
-            keyCode,
-          },
-        });
-      },
-      onKeyUp: (keyCode) => {
-        this.sendToHost({
-          type: 'keyUp',
-          data: {
-            keyCode,
-          },
-        });
+    this.pearl.inputter.onKeyDown.add(this.onKeyDown);
+    this.pearl.inputter.onKeyUp.add(this.onKeyUp);
+  }
+
+  private onKeyDown = ({ keyCode }: PearlKeyEvent) => {
+    this.sendToHost({
+      type: 'keyDown',
+      data: {
+        keyCode,
       },
     });
+  };
 
-    this.inputter.registerLocalListeners();
-  }
+  private onKeyUp = ({ keyCode }: PearlKeyEvent) => {
+    this.sendToHost({
+      type: 'keyUp',
+      data: {
+        keyCode,
+      },
+    });
+  };
 
   private onClose() {
     this.connectionState = 'closed';
-    if (this.inputter) {
-      this.inputter.onKeyDown = () => {};
-      this.inputter.onKeyUp = () => {};
-    }
+    this.pearl.inputter.onKeyDown.remove(this.onKeyDown);
+    this.pearl.inputter.onKeyUp.remove(this.onKeyUp);
   }
 
   private sendToHost(msg: ClientMessage) {

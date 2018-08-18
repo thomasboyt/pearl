@@ -1,4 +1,5 @@
 import Keys from '../util/keyCodes';
+import Delegate from '../util/Delegate';
 
 export enum MouseButton {
   left,
@@ -13,11 +14,18 @@ const interruptKeyCodes = new Set([
   Keys.space,
 ]);
 
+export interface PearlKeyEvent {
+  keyCode: number;
+}
+
 export default class ButtonListener {
-  _keyDownState: Map<number, boolean> = new Map();
-  _keyPressedState: Map<number, boolean> = new Map();
-  _mouseDownState: Map<MouseButton, boolean> = new Map();
-  _mousePressedState: Map<MouseButton, boolean> = new Map();
+  onKeyDown = new Delegate<PearlKeyEvent>();
+  onKeyUp = new Delegate<PearlKeyEvent>();
+
+  private _keyDownState: Map<number, boolean> = new Map();
+  private _keyPressedState: Map<number, boolean> = new Map();
+  private _mouseDownState: Map<MouseButton, boolean> = new Map();
+  private _mousePressedState: Map<MouseButton, boolean> = new Map();
 
   bind(canvas: HTMLCanvasElement) {
     // allows canvas to receive keyboard events & get focus
@@ -90,6 +98,7 @@ export default class ButtonListener {
   private _keyDown(keyCode: number) {
     if (!this._keyPressedState.has(keyCode)) {
       this._keyPressedState.set(keyCode, true);
+      this.onKeyDown.call({ keyCode });
     }
 
     this._keyDownState.set(keyCode, true);
@@ -98,6 +107,7 @@ export default class ButtonListener {
   private _keyUp(keyCode: number) {
     this._keyPressedState.delete(keyCode);
     this._keyDownState.delete(keyCode);
+    this.onKeyUp.call({ keyCode });
   }
 
   private _mouseDown(mouseButton: MouseButton) {
