@@ -1,5 +1,5 @@
 export { Vector2 } from './types';
-export { MouseButton } from './Inputter/ButtonListener';
+export { MouseButton, PearlKeyEvent } from './Inputter/ButtonListener';
 export { default as Keys } from './util/keyCodes';
 
 import * as Maths from './util/maths';
