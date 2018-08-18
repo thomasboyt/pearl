@@ -17,13 +17,6 @@ abstract class Component<Settings> {
   entity: Entity;
 
   /**
-   * @deprecated
-   */
-  get gameObject() {
-    return this.entity;
-  }
-
-  /**
    * Whether this component's render() should be skipped.
    */
   isVisible: boolean = true;

@@ -10,10 +10,7 @@ export { VectorMaths };
 
 export { default as PearlInstance, createPearl } from './PearlInstance';
 
-import Entity from './Entity';
-export { Entity };
-export const GameObject = Entity;
-export type GameObject = Entity;
+export { default as Entity } from './Entity';
 export { default as Component } from './Component';
 
 export { default as Sprite } from './util/Sprite';

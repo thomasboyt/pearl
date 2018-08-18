@@ -37,13 +37,6 @@ export default class PearlInstance {
   root: Entity;
 
   /**
-   * @deprecated
-   */
-  get obj() {
-    return this.root;
-  }
-
-  /**
    * Factor by which to speed up or slow down the in-engine time. This affects
    * the delta-time passed to `update()` as well as the internal timer for
    * `async.waitMs()`.

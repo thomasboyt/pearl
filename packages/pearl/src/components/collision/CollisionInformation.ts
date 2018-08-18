@@ -8,13 +8,6 @@ export default class CollisionInformation {
   entity: Entity;
   response: CollisionResponse;
 
-  /**
-   * @deprecated
-   */
-  get gameObject() {
-    return this.entity;
-  }
-
   constructor(collider: Collider, response: CollisionResponse) {
     this.collider = collider;
     this.entity = collider.entity;
