@@ -1,82 +1,147 @@
 import debugLog from '../util/debugLog';
 
-type OnClientOfferSignal = (
+type OnGuestOfferSignal = (
   clientId: string,
   offerSignal: RTCSessionDescriptionInit
 ) => void;
 
 type OnHostAnswerSignal = (answerSignal: RTCSessionDescriptionInit) => void;
 
+interface GroovejetErrorMessage {
+  errorMessage: string;
+  errorType: string;
+}
+
+export class GroovejetError extends Error {
+  type: string;
+
+  constructor(groovejetErrorMessage: GroovejetErrorMessage) {
+    super(groovejetErrorMessage.errorMessage);
+    this.type = groovejetErrorMessage.errorType;
+  }
+}
+
 interface GroovejetOptions {
-  url: string;
-  roomCode: string;
-  isHost: boolean;
   onOpen?: () => void;
   onClose?: () => void;
-  onClientOfferSignal?: OnClientOfferSignal;
+  onError?: (err: GroovejetError) => void;
+  onGuestOfferSignal?: OnGuestOfferSignal;
   onHostAnswerSignal?: OnHostAnswerSignal;
 }
 
 export default class GroovejetClient {
-  ws: WebSocket;
+  private ws: WebSocket;
   onOpen = () => {};
   onClose = () => {};
-  onClientOfferSignal?: OnClientOfferSignal;
+  onError = (err: GroovejetError) => {};
+  onGuestOfferSignal?: OnGuestOfferSignal;
   onHostAnswerSignal?: OnHostAnswerSignal;
 
   constructor(opts: GroovejetOptions) {
-    const protocol = document.location.protocol === 'https:' ? 'wss' : 'ws';
-    let url = `${protocol}://${opts.url}/?code=${opts.roomCode}`;
-
-    if (opts.isHost) {
-      url += '&host';
-    }
-
-    this.ws = new WebSocket(url);
-    this.ws.onopen = this.handleOpen.bind(this);
-    this.ws.onmessage = this.handleMessage.bind(this);
-    this.ws.onclose = this.handleClose.bind(this);
-
     if (opts.onOpen) {
       this.onOpen = opts.onOpen;
     }
     if (opts.onClose) {
       this.onClose = opts.onClose;
     }
+    if (opts.onError) {
+      this.onError = opts.onError;
+    }
 
-    this.onClientOfferSignal = opts.onClientOfferSignal;
+    this.onGuestOfferSignal = opts.onGuestOfferSignal;
     this.onHostAnswerSignal = opts.onHostAnswerSignal;
   }
 
-  private handleOpen() {
-    debugLog('*** Connected to Groovejet server');
-    this.onOpen();
+  /**
+   * Resolves with the client ID when the initial identity message is received
+   */
+  connect(host: string): Promise<string> {
+    const protocol = document.location.protocol === 'https:' ? 'wss' : 'ws';
+    const url = `${protocol}://${host}`;
+
+    this.ws = new WebSocket(url);
+
+    // this.ws.onopen = this.handleOpen.bind(this);
+    // this.ws.onmessage = this.handleMessage.bind(this);
+    this.ws.onclose = this.handleClose.bind(this);
+
+    return new Promise((resolve, reject) => {
+      this.ws.onopen = () => {
+        this.ws.onmessage = (evt) => {
+          const msg = JSON.parse(evt.data);
+          if (msg.type === 'identity') {
+            this.ws.onmessage = () => {};
+            resolve(msg.data.clientId);
+          }
+        };
+      };
+    });
   }
 
-  private handleMessage(evt: MessageEvent) {
-    const msg = JSON.parse(evt.data);
+  /**
+   * Joins an existing room. Eventually will allow you to join as host - for now
+   * only as guest.
+   */
+  joinRoom(roomCode: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.ws.onmessage = (evt) => {
+        const msg = JSON.parse(evt.data);
 
-    if (msg.type === 'hostSignal') {
-      this.onHostAnswerSignal!(msg.data.answerSignal);
-    } else if (msg.type === 'clientConnection') {
-      const { clientId, offerSignal } = msg.data;
+        if (msg.type === 'joinedRoom') {
+          // revert to default message handler
+          this.ws.onmessage = this.handleMessage;
+          resolve();
+        } else if (msg.type === 'error') {
+          this.ws.onmessage = this.handleMessage;
+          reject(new GroovejetError(msg));
+        }
+      };
 
-      this.onClientOfferSignal!(clientId, offerSignal);
-    }
+      this.ws.send(
+        JSON.stringify({
+          type: 'joinRoom',
+          data: {
+            roomCode,
+            // eventually:
+            // canHost: true
+          },
+        })
+      );
+    });
   }
 
-  private handleClose() {
-    debugLog('*** Lost connection to lobby server');
-    this.onClose();
+  /**
+   * Create a room and join it. Returns the new room code.
+   */
+  createRoom(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.ws.onmessage = (evt) => {
+        const msg = JSON.parse(evt.data);
+
+        if (msg.type === 'createdRoom') {
+          // revert to default message handler
+          this.ws.onmessage = this.handleMessage;
+          resolve(msg.data.roomCode);
+        } else if (msg.type === 'error') {
+          this.ws.onmessage = this.handleMessage;
+          reject({
+            type: msg.errorType,
+            message: msg.errorMessage,
+          });
+        }
+      };
+
+      this.ws.send(
+        JSON.stringify({
+          type: 'createRoom',
+        })
+      );
+    });
   }
 
-  private send(msg: any) {
-    this.ws.send(JSON.stringify(msg));
-  }
-
-  sendClientOfferSignal(offerSignal: RTCSessionDescriptionInit) {
+  sendGuestOfferSignal(offerSignal: RTCSessionDescriptionInit) {
     this.send({
-      type: 'clientSignal',
+      type: 'guestOfferSignal',
       data: {
         offerSignal,
       },
@@ -88,7 +153,7 @@ export default class GroovejetClient {
     answerSignal: RTCSessionDescriptionInit
   ) {
     this.send({
-      type: 'hostSignal',
+      type: 'hostAnswerSignal',
       data: {
         answerSignal,
         clientId,
@@ -96,6 +161,25 @@ export default class GroovejetClient {
     });
   }
 
-  // uploadSnapshot(snapshot: string) {
-  // }
+  private handleMessage = (evt: MessageEvent) => {
+    const msg = JSON.parse(evt.data);
+
+    if (msg.type === 'hostAnswerSignal') {
+      this.onHostAnswerSignal!(msg.data.answerSignal);
+    } else if (msg.type === 'guestOfferSignal') {
+      const { clientId, offerSignal } = msg.data;
+      this.onGuestOfferSignal!(clientId, offerSignal);
+    } else if (msg.type === 'error') {
+      this.onError(new GroovejetError(msg));
+    }
+  };
+
+  private handleClose() {
+    debugLog('*** Lost connection to lobby server');
+    this.onClose();
+  }
+
+  private send(msg: any) {
+    this.ws.send(JSON.stringify(msg));
+  }
 }

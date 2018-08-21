@@ -7,3 +7,4 @@ export {
   NetworkingPlayer,
 } from './components/NetworkingHost';
 export * from './types';
+export { GroovejetError, PeerSocketError } from 'pearl-multiplayer-socket';

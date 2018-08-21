@@ -9,16 +9,13 @@ export class HostSession implements PublicPart<RealHostSession> {
   onPeerOpen: (id: string) => void;
   onPeerClose: (id: string) => void;
   onPeerMessage: (id: string, msg: any) => void;
-  onGroovejetOpen: () => void;
 
-  getRoomCode(): Promise<string> {
-    return Promise.resolve('roomCode');
+  async connect(): Promise<string> {
+    return Promise.resolve('clientId');
   }
 
-  connectRoom(roomCode: string): void {
-    setTimeout(() => {
-      this.onGroovejetOpen();
-    });
+  async createRoom(): Promise<string> {
+    return Promise.resolve('roomCode');
   }
 
   sendPeer: (
@@ -40,9 +37,16 @@ export class ClientSession implements PublicPart<RealClientSession> {
   onClose: () => void;
   onMessage: (msg: any) => void;
 
-  connectRoom(roomCode: string): void {
-    setTimeout(() => {
-      this.onOpen();
+  async connect(): Promise<string> {
+    return Promise.resolve('clientId');
+  }
+
+  async joinRoom(roomCode: string) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.onOpen();
+        resolve();
+      });
     });
   }
 

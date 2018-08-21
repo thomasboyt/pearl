@@ -1,6 +1,5 @@
 import GroovejetClient from './groovejet/GroovejetClient';
 import PeerSocket from './PeerSocket';
-import { createRoom } from './groovejet/GroovejetHTTP';
 import debugLog from './util/debugLog';
 
 type PeerId = string;
@@ -17,31 +16,31 @@ export default class HostSession {
   onPeerOpen = (id: PeerId) => {};
   onPeerClose = (id: PeerId) => {};
   onPeerMessage = (id: PeerId, msg: any) => {};
-  onGroovejetOpen = () => {};
 
   constructor(groovejetUrl: string) {
     this._groovejetUrl = groovejetUrl;
-  }
 
-  async getRoomCode(): Promise<string> {
-    const code = await createRoom(this._groovejetUrl);
-    return code;
-  }
-
-  connectRoom(roomCode: string) {
     this._groovejet = new GroovejetClient({
-      isHost: true,
-      url: this._groovejetUrl,
-      roomCode,
-
-      onOpen: () => {
-        this.onGroovejetOpen();
-      },
-
-      onClientOfferSignal: (clientId, offer) => {
+      onGuestOfferSignal: (clientId, offer) => {
         this._onClientOffer(clientId, offer);
       },
     });
+  }
+
+  /**
+   * Connects to Groovejet and returns the established client ID.
+   */
+  async connect(): Promise<string> {
+    return await this._groovejet.connect(this._groovejetUrl);
+  }
+
+  /**
+   * Creates a room and begins listening for client offers there. Returns the
+   * room code.
+   */
+  async createRoom(): Promise<string> {
+    const code = await this._groovejet.createRoom();
+    return code;
   }
 
   private async _onClientOffer(

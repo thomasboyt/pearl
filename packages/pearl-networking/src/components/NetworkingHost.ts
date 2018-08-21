@@ -10,9 +10,7 @@ import {
 } from '../messages';
 import NetworkedEntity from './NetworkedEntity';
 import Delegate from '../util/Delegate';
-import { HostSession } from 'pearl-multiplayer-socket';
-
-const LOCAL_PEER_ID = '__LOCAL__';
+import { HostSession, GroovejetError } from 'pearl-multiplayer-socket';
 
 interface OnPlayerAddedMsg {
   networkingPlayer: NetworkingPlayer;
@@ -58,7 +56,6 @@ interface Settings extends NetworkingSettings {
 
 export default class NetworkingHost extends Networking<Settings> {
   isHost: true = true;
-  connectionState: 'connecting' | 'open' | 'closed' = 'connecting';
   onPlayerAdded = new Delegate<OnPlayerAddedMsg>();
   onPlayerRemoved = new Delegate<OnPlayerAddedMsg>();
   players = new Map<string, NetworkingPlayer>();
@@ -80,7 +77,26 @@ export default class NetworkingHost extends Networking<Settings> {
     const connection = new HostSession(groovejetUrl);
     this.connection = connection;
 
-    const roomCode = await connection.getRoomCode();
+    connection.onPeerOpen = this.onPeerConnected.bind(this);
+    connection.onPeerMessage = this.onPeerMessage.bind(this);
+    connection.onPeerClose = this.onPeerDisconnect.bind(this);
+    // TODO: not actually implemented yet
+    // connection.onPeerError = this.onPeerDisconnect;
+
+    this.clientId = await connection.connect();
+
+    let roomCode;
+    try {
+      roomCode = await connection.createRoom();
+    } catch (err) {
+      this.connectionState = 'error';
+
+      if (err instanceof GroovejetError) {
+        this.errorReason = err.message;
+      }
+
+      throw err;
+    }
 
     // report room created to parent for debug iframe usage
     if (window.parent !== window) {
@@ -93,22 +109,9 @@ export default class NetworkingHost extends Networking<Settings> {
       );
     }
 
-    const promise = new Promise<string>((resolve, reject) => {
-      connection.onGroovejetOpen = () => {
-        this.connectionState = 'open';
-        resolve(roomCode);
-      };
+    this.connectionState = 'open';
 
-      connection.onPeerOpen = this.onPeerConnected.bind(this);
-      connection.onPeerMessage = this.onPeerMessage.bind(this);
-      connection.onPeerClose = this.onPeerDisconnect.bind(this);
-      // TODO: not actually implemented yet
-      // connection.onPeerError = this.onPeerDisconnect;
-    });
-
-    this.connection.connectRoom(roomCode);
-
-    return promise;
+    return roomCode;
   }
 
   createNetworkedPrefab(type: string): Entity {
@@ -128,12 +131,10 @@ export default class NetworkingHost extends Networking<Settings> {
 
   addLocalPlayer() {
     const player = this.addPlayer({
-      peerId: LOCAL_PEER_ID,
+      peerId: this.clientId!,
       inputter: this.pearl.inputter,
       isLocal: true,
     });
-
-    this.setIdentity(player.id);
   }
 
   private onPeerConnected(peerId: string) {
@@ -150,16 +151,9 @@ export default class NetworkingHost extends Networking<Settings> {
       data: this.serializeSnapshot(),
     });
 
-    const player = this.addPlayer({
+    this.addPlayer({
       peerId,
       inputter: new NetworkedInputter(),
-    });
-
-    this.sendToPeer(peerId, {
-      type: 'identity',
-      data: {
-        id: player.id,
-      },
     });
   }
 
@@ -192,13 +186,7 @@ export default class NetworkingHost extends Networking<Settings> {
   private addPlayer(opts: AddPlayerOpts): NetworkingPlayer {
     const player = new NetworkingPlayer(opts.peerId, opts.inputter);
     this.players.set(player.id, player);
-
-    if (opts.isLocal) {
-      this.setIdentity(player.id);
-    }
-
     this.onPlayerAdded.call({ networkingPlayer: player });
-
     return player;
   }
 
@@ -253,7 +241,7 @@ export default class NetworkingHost extends Networking<Settings> {
     msg: ServerMessage,
     channel: 'reliable' | 'unreliable' = 'reliable'
   ) {
-    if (peerId === LOCAL_PEER_ID) {
+    if (peerId === this.clientId) {
       return;
     }
 
