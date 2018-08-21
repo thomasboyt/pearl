@@ -67,6 +67,8 @@ export default class GroovejetClient {
 
     return new Promise((resolve, reject) => {
       this.ws.onopen = () => {
+        this.ws.onclose = () => {};
+
         this.ws.onmessage = (evt) => {
           const msg = JSON.parse(evt.data);
           if (msg.type === 'identity') {
@@ -74,6 +76,16 @@ export default class GroovejetClient {
             resolve(msg.data.clientId);
           }
         };
+      };
+
+      this.ws.onclose = (err) => {
+        debugLog('websocket connection failed before open state reached');
+        reject(
+          new GroovejetError({
+            errorType: 'connectionFailed',
+            errorMessage: 'could not connect to lobby server',
+          })
+        );
       };
     });
   }

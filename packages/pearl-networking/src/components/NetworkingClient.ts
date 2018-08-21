@@ -37,9 +37,8 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
     connection.onMessage = this.onMessage.bind(this);
     connection.onClose = this.onClose.bind(this);
 
-    this.clientId = await connection.connect();
-
     try {
+      this.clientId = await connection.connect();
       await connection.joinRoom(connectionOptions.roomCode);
     } catch (err) {
       this.connectionState = 'error';

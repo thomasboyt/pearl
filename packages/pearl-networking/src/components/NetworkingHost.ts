@@ -83,10 +83,9 @@ export default class NetworkingHost extends Networking<Settings> {
     // TODO: not actually implemented yet
     // connection.onPeerError = this.onPeerDisconnect;
 
-    this.clientId = await connection.connect();
-
     let roomCode;
     try {
+      this.clientId = await connection.connect();
       roomCode = await connection.createRoom();
     } catch (err) {
       this.connectionState = 'error';
