@@ -12,19 +12,15 @@ import {
 } from '../messages';
 
 import NetworkedEntity from './NetworkedEntity';
-import { ClientSession } from 'pearl-multiplayer-socket';
+import { ClientSession, GroovejetError } from 'pearl-multiplayer-socket';
 
 interface ConnectionOptions {
   groovejetUrl: string;
   roomCode: string;
 }
 
-type ConnectionState = 'connecting' | 'connected' | 'error' | 'closed';
-
 export default class NetworkingClient extends Networking<NetworkingSettings> {
   isHost: false = false;
-  connectionState: ConnectionState = 'connecting';
-  errorReason?: string;
 
   private connection!: ClientSession;
   private snapshotClock = 0;
@@ -33,21 +29,34 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
     this.registerSettings(settings);
   }
 
-  connect(connectionOptions: ConnectionOptions) {
+  async connect(connectionOptions: ConnectionOptions) {
     const connection = new ClientSession(connectionOptions.groovejetUrl);
     this.connection = connection;
 
-    const promise = new Promise((resolve, reject) => {
-      connection.onOpen = () => {
-        this.onOpen();
-        resolve();
-      };
-      connection.onMessage = this.onMessage.bind(this);
-    });
+    connection.onOpen = this.onOpen.bind(this);
+    connection.onMessage = this.onMessage.bind(this);
+    connection.onClose = this.onClose.bind(this);
 
-    connection.connectRoom(connectionOptions.roomCode);
+    try {
+      this.clientId = await connection.connect();
+      await connection.joinRoom(connectionOptions.roomCode);
+    } catch (err) {
+      this.connectionState = 'error';
 
-    return promise;
+      if (err instanceof GroovejetError) {
+        if (err.type === 'hostDisconnected') {
+          this.errorReason = 'Host disconnected';
+        } else if (err.type === 'noRoomFound') {
+          this.errorReason = 'No room found';
+        } else {
+          this.errorReason = err.message;
+        }
+      }
+
+      throw err;
+    }
+
+    this.connectionState = 'open';
   }
 
   private onMessage(strData: any) {
@@ -55,8 +64,6 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
 
     if (msg.type === 'snapshot') {
       this.onSnapshot(msg.data);
-    } else if (msg.type === 'identity') {
-      this.setIdentity(msg.data.id);
     } else if (msg.type === 'tooManyPlayers') {
       this.connectionState = 'error';
       this.errorReason = 'Room at max capacity';
@@ -77,7 +84,7 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
   }
 
   private onOpen() {
-    this.connectionState = 'connected';
+    this.connectionState = 'open';
 
     this.pearl.inputter.onKeyDown.add(this.onKeyDown);
     this.pearl.inputter.onKeyUp.add(this.onKeyUp);

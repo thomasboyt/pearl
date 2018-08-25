@@ -4,12 +4,12 @@ interface PeerSocketOptions {
   onOpen: () => void;
   onMessage: (evt: MessageEvent) => void;
   onClose: () => void;
-  onError?: (err: SocketError) => void;
+  onError?: (err: PeerSocketError) => void;
 }
 
 type ErrorCode = 'iceFailed';
 
-class SocketError extends Error {
+export class PeerSocketError extends Error {
   code: ErrorCode;
   constructor(msg: string, code: ErrorCode) {
     super(msg);
@@ -28,7 +28,7 @@ export default class PeerSocket {
   onOpen = () => {};
   onMessage = (evt: MessageEvent) => {};
   onClose = () => {};
-  onError = (err: SocketError) => {
+  onError = (err: PeerSocketError) => {
     console.error('Unhandled PeerSocket error:', err);
   };
 
@@ -80,7 +80,7 @@ export default class PeerSocket {
     this._peer.oniceconnectionstatechange = (evt) => {
       if (this._peer.iceConnectionState === 'failed') {
         debugLog('iceConnectionState = failed');
-        this.close(new SocketError('ice connection failed', 'iceFailed'));
+        this.close(new PeerSocketError('ice connection failed', 'iceFailed'));
       } else if (this._peer.iceConnectionState === 'closed') {
         debugLog('iceConnectionState = closed');
         this.close();
@@ -159,7 +159,7 @@ export default class PeerSocket {
     channel.send(msg);
   }
 
-  close(err?: SocketError) {
+  close(err?: PeerSocketError) {
     if (this.state === 'closed') {
       return;
     }

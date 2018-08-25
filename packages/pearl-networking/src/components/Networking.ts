@@ -6,12 +6,18 @@ export interface NetworkingSettings {
   prefabs: { [_: string]: NetworkedPrefab };
 }
 
+export type ConnectionState = 'connecting' | 'open' | 'error' | 'closed';
+
 export default abstract class Networking<
   T extends NetworkingSettings = any
 > extends Component<T> {
   prefabs!: { [_: string]: NetworkedPrefab };
   networkedEntities = new Map<string, Entity>();
-  localPlayerId?: string;
+  clientId?: string;
+
+  connectionState: ConnectionState = 'connecting';
+  errorReason?: string;
+
   abstract isHost: boolean;
 
   protected registerSettings(opts: NetworkingSettings) {
@@ -73,9 +79,5 @@ export default abstract class Networking<
   protected deregisterNetworkedEntity(entity: Entity) {
     const networked = entity.getComponent(NetworkedEntity);
     this.networkedEntities.delete(networked.id);
-  }
-
-  protected setIdentity(id: string) {
-    this.localPlayerId = id;
   }
 }

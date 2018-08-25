@@ -132,8 +132,8 @@ describe('NetworkingHost', () => {
       type: 'tooManyPlayers',
     };
 
-    expect(sendPeerMock.mock.calls[2][0]).toEqual('two');
-    expect(sendPeerMock.mock.calls[2][1]).toEqual(
+    expect(sendPeerMock.mock.calls[1][0]).toEqual('two');
+    expect(sendPeerMock.mock.calls[1][1]).toEqual(
       JSON.stringify(expectedMessage)
     );
   });

@@ -32,15 +32,6 @@ export interface SnapshotMessage extends BaseMessage {
   data: SnapshotMessageData;
 }
 
-export interface IdentityMessageData {
-  id: string;
-}
-
-export interface IdentityMessage extends BaseMessage {
-  type: 'identity';
-  data: IdentityMessageData;
-}
-
 export interface TooManyPlayersMessage extends BaseMessage {
   type: 'tooManyPlayers';
 }
@@ -67,7 +58,6 @@ export interface InitialSnapshotMessage extends BaseMessage {
 export type ServerMessage =
   | RpcMessage
   | SnapshotMessage
-  | IdentityMessage
   | TooManyPlayersMessage
   | EntityCreateMessage
   | EntityDestroyMessage
