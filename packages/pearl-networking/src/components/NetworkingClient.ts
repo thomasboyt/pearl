@@ -153,6 +153,8 @@ export default class NetworkingClient extends Networking<NetworkingSettings> {
       const parent = this.networkedEntities.get(snapshot.parentId)!;
       // XXX: this is safe to do every frame since children is a set
       parent.appendChild(entity);
+    } else if (entity.parent && !snapshot.parentId) {
+      entity.parent.removeChild(entity);
     }
   }
 
