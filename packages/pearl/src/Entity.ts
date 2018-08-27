@@ -126,7 +126,7 @@ export default class Entity {
   /**
    * This Entity's child entities.
    *
-   * This Set should not be mutated (use `addChild` instead)!
+   * This Set should not be mutated (use `addChild` and `removeChild` instead)!
    */
   get children(): Set<Entity> {
     return this._children;
@@ -139,7 +139,7 @@ export default class Entity {
     return this._parent;
   }
 
-  private setParent(parent: Entity) {
+  private setParent(parent: Entity | null) {
     this._parent = parent;
   }
 
@@ -166,7 +166,8 @@ export default class Entity {
     this._children.add(child);
   }
 
-  private removeChild(child: Entity) {
+  removeChild(child: Entity) {
+    child.setParent(null);
     this._children.delete(child);
   }
 
