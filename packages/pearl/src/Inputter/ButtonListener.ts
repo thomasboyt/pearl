@@ -29,7 +29,7 @@ export default class ButtonListener {
 
   bind(canvas: HTMLCanvasElement) {
     // allows canvas to receive keyboard events & get focus
-    canvas.contentEditable = 'true';
+    canvas.tabIndex = 1;
 
     canvas.addEventListener(
       'keydown',
