@@ -17,15 +17,32 @@ interface BoxOptions {
 }
 
 export interface PolygonSettings {
-  points?: [number, number][];
+  points: [number, number][];
+}
+
+function polygonArea(points: [number, number][]) {
+  let area = 0;
+  for (let i = 0; i < points.length; i++) {
+    let j = (i + 1) % points.length;
+    area += points[i][0] * points[j][1];
+    area -= points[j][0] * points[i][1];
+  }
+  return area / 2;
+}
+
+function isClockwise(points: [number, number][]): boolean {
+  return polygonArea(points) < 0;
 }
 
 export default class PolygonShape extends CollisionShape {
-  points: [number, number][] = [];
+  readonly points: [number, number][];
 
-  constructor(settings: PolygonSettings = {}) {
+  constructor(settings: PolygonSettings) {
     super();
-    if (settings.points) {
+
+    if (isClockwise(settings.points)) {
+      this.points = [...settings.points].reverse();
+    } else {
       this.points = settings.points;
     }
   }
@@ -34,20 +51,6 @@ export default class PolygonShape extends CollisionShape {
    * Convenience method to create a rectangular polygon.
    */
   static createBox(opts: BoxOptions): PolygonShape {
-    const poly = new PolygonShape();
-
-    poly.setBoxSize({
-      width: opts.width,
-      height: opts.height,
-    });
-
-    return poly;
-  }
-
-  /**
-   * Replace the points in this collider with a box.
-   */
-  setBoxSize(opts: BoxOptions) {
     const points: Point[] = [
       [-opts.width / 2, -opts.height / 2],
       [opts.width / 2, -opts.height / 2],
@@ -55,7 +58,9 @@ export default class PolygonShape extends CollisionShape {
       [-opts.width / 2, opts.height / 2],
     ];
 
-    this.points = points;
+    const poly = new PolygonShape({ points });
+
+    return poly;
   }
 
   getSATShape(): SAT.Polygon {
