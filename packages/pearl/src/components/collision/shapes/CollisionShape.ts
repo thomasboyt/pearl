@@ -1,5 +1,6 @@
 import * as SAT from 'sat';
 
+import testShapes from './testShapes';
 import { CollisionResponse, Position, Bounds } from '../utils';
 
 export default class CollisionShape {
@@ -16,6 +17,6 @@ export default class CollisionShape {
     selfPosition: Position,
     otherPosition: Position
   ): CollisionResponse | undefined {
-    throw new Error('not implemented');
+    return testShapes(this, selfPosition, shape, otherPosition);
   }
 }

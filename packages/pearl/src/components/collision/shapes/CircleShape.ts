@@ -32,41 +32,4 @@ export default class CircleShape extends CollisionShape {
       yMax: this.radius,
     };
   }
-
-  // TODO
-  testShape(
-    shape: CollisionShape,
-    selfPosition: Position,
-    otherPosition: Position
-  ): CollisionResponse | undefined {
-    const self = this.getSATShape();
-    self.pos = new SAT.Vector(selfPosition.center.x, selfPosition.center.y);
-
-    const resp = new SAT.Response();
-    let collided: boolean;
-
-    if (shape instanceof PolygonShape) {
-      const otherPolygon = shape.getSATShape();
-      // don't bother rotating for undefined _or_ 0, since the default is always
-      // 0
-      if (otherPosition.angle) {
-        otherPolygon.rotate(otherPosition.angle);
-      }
-      otherPolygon.translate(otherPosition.center.x, otherPosition.center.y);
-      collided = SAT.testCirclePolygon(self, otherPolygon, resp);
-    } else if (shape instanceof CircleShape) {
-      const otherCircle = shape.getSATShape();
-      otherCircle.pos = new SAT.Vector(
-        otherPosition.center.x,
-        otherPosition.center.y
-      );
-      collided = SAT.testCircleCircle(self, otherCircle, resp);
-    } else {
-      throw new Error('Unrecognized shape');
-    }
-
-    if (collided) {
-      return responseFromSAT(resp);
-    }
-  }
 }

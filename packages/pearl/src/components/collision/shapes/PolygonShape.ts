@@ -2,6 +2,7 @@ import * as SAT from 'sat';
 
 import CollisionShape from './CollisionShape';
 import CircleShape from './CircleShape';
+import testShapes from './testShapes';
 import {
   CollisionResponse,
   Point,
@@ -89,45 +90,5 @@ export default class PolygonShape extends CollisionShape {
     }
 
     return { xMin, yMin, xMax, yMax };
-  }
-
-  testShape(
-    shape: CollisionShape,
-    selfPosition: Position,
-    otherPosition: Position
-  ): CollisionResponse | undefined {
-    const selfPolygon = this.getSATShape();
-
-    if (selfPosition.angle !== undefined) {
-      selfPolygon.rotate(selfPosition.angle);
-    }
-    selfPolygon.translate(selfPosition.center.x, selfPosition.center.y);
-
-    const resp = new SAT.Response();
-    let collided: boolean;
-
-    if (shape instanceof PolygonShape) {
-      const otherPolygon = shape.getSATShape();
-      // don't bother rotating for undefined _or_ 0, since the default is always
-      // 0
-      if (otherPosition.angle) {
-        otherPolygon.rotate(otherPosition.angle);
-      }
-      otherPolygon.translate(otherPosition.center.x, otherPosition.center.y);
-      collided = SAT.testPolygonPolygon(selfPolygon, otherPolygon, resp);
-    } else if (shape instanceof CircleShape) {
-      const otherCircle = shape.getSATShape();
-      otherCircle.pos = new SAT.Vector(
-        otherPosition.center.x,
-        otherPosition.center.y
-      );
-      collided = SAT.testPolygonCircle(selfPolygon, otherCircle, resp);
-    } else {
-      throw new Error('Unrecognized shape');
-    }
-
-    if (collided) {
-      return responseFromSAT(resp);
-    }
   }
 }
