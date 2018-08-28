@@ -1,4 +1,4 @@
-import { degreesToRadians, radiansToDegrees, lerp } from '../maths';
+import { degreesToRadians, radiansToDegrees, lerp, clamp } from '../maths';
 
 describe('maths', () => {
   describe('degreesToRadians()', () => {
@@ -25,6 +25,20 @@ describe('maths', () => {
       expect(lerp(8, 4, 0.25)).toBe(7);
       expect(lerp(8, -4, 0.25)).toBe(5);
       expect(lerp(-8, -4, 0.25)).toBe(-7);
+    });
+  });
+
+  describe('clamp', () => {
+    it('works', () => {
+      expect(clamp(0, 1)).toBe(0);
+      expect(clamp(1, 1)).toBe(1);
+      expect(clamp(2, 1)).toBe(1);
+
+      expect(clamp(1, 0, 2)).toBe(1);
+      expect(clamp(0, 0, 2)).toBe(0);
+      expect(clamp(2, 0, 2)).toBe(2);
+      expect(clamp(3, 0, 2)).toBe(2);
+      expect(clamp(-1, 0, 2)).toBe(0);
     });
   });
 });
